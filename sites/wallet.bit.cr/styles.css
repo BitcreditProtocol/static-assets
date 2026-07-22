@@ -1,0 +1,198 @@
+:root {
+  color-scheme: light;
+  /* Mirrored from @bitcredit/ui-library so this static site stays dependency-free. */
+  --elevation-50: #fefbf1;
+  --elevation-100: #faf7ef;
+  --text-300: #1b0f00;
+  --text-200: #8d8579;
+  --text-active: #ffffff;
+  --brand-200: #f7931a;
+  --divider-75: #d9d5cc;
+  --divider-100: #d1ccc1;
+  --divider-300: #a39d91;
+  --base-hover: #331c00;
+  --base-active: #1b0f00;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-items: center;
+  justify-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--elevation-50);
+  color: var(--text-300);
+  font-family: Geist, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+main {
+  width: min(520px, 100%);
+  padding: clamp(28px, 7vw, 48px);
+  border: 1px solid var(--divider-100);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgb(16 24 40 / 10%), 0 1px 2px rgb(16 24 40 / 6%);
+  text-align: center;
+}
+
+.wallet-icon {
+  width: 64px;
+  height: 64px;
+  display: block;
+  margin: 0 auto 24px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+h1 {
+  margin: 0;
+  color: var(--text-300);
+  font-size: clamp(24px, 6vw, 32px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 16px 0 0;
+  color: var(--text-200);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.desktop-qr {
+  margin-top: 24px;
+}
+
+.desktop-qr img {
+  display: block;
+  width: 168px;
+  height: 168px;
+  margin: 0 auto;
+  padding: 8px;
+  border: 1px solid var(--divider-100);
+  border-radius: 8px;
+  background: #ffffff;
+  image-rendering: pixelated;
+}
+
+.desktop-qr p {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+button,
+.button {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 20px;
+  border: 1px solid var(--divider-300);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-300);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  touch-action: manipulation;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+button:hover,
+.button:hover {
+  border-color: var(--divider-100);
+  background: var(--elevation-100);
+}
+
+.primary {
+  border-color: var(--base-active);
+  background: var(--base-active);
+  color: var(--text-active);
+}
+
+.primary:hover {
+  border-color: var(--base-hover);
+  background: var(--base-hover);
+}
+
+button:focus-visible,
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 6px var(--divider-75);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.recommended {
+  border-color: var(--brand-200);
+  box-shadow: 0 0 0 2px rgb(247 147 26 / 16%);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.privacy {
+  font-size: 13px;
+}
+
+.site-footer {
+  width: min(520px, 100%);
+  padding: 0 8px;
+}
+
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+}
+
+.site-footer a {
+  color: var(--text-200);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--text-300);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.site-footer a:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid var(--text-300);
+  outline-offset: 3px;
+}
+
+@media (min-height: 760px) {
+  body {
+    gap: 24px;
+    padding: 24px;
+  }
+}

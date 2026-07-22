@@ -1,0 +1,21 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "85W65YFC4J.org.bitcr.wallet.staging"
+        ],
+        "components": [
+          {
+            "/": "/pay/*",
+            "comment": "Bitcredit Wallet staging payment links"
+          },
+          {
+            "/": "/receive/*",
+            "comment": "Bitcredit Wallet staging receive links"
+          }
+        ]
+      }
+    ]
+  }
+}
