@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <title>Bitcredit Wallet — Staging</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" type="image/png" href="/wallet-icon.png">
+    <script src="/site-config.js" defer></script>
+    <script src="/landing.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
+      <p class="environment">Staging</p>
+      <h1>Bitcredit Wallet</h1>
+      <p>The Bitcoin-native, non-custodial wallet for sending, requesting and receiving eCash.</p>
+      <div class="desktop-qr" id="desktop-qr" hidden>
+        <img src="/qr-wallet.png" width="168" height="168" alt="QR code for wallet-staging.bit.cr">
+        <p>Scan to open wallet-staging.bit.cr on your phone</p>
+      </div>
+      <div class="actions" id="wallet-actions" aria-label="Wallet actions" hidden>
+        <a class="button primary" id="open-wallet" href="bcrwallet-staging://open" hidden>Open staging wallet</a>
+      </div>
+      <p class="privacy">Staging builds are for authorized testers.</p>
+    </main>
+    <footer class="site-footer">
+      <nav aria-label="Bitcredit links">
+        <a href="https://bit.cr/">bit.cr</a>
+        <a href="https://static.bit.cr/wallet/privacy-policy/">Privacy policy</a>
+        <a href="https://github.com/BitcreditProtocol">GitHub</a>
+      </nav>
+    </footer>
+  </body>
+</html>

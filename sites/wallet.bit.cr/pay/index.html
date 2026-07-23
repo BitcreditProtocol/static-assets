@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <title>Open payment in Bitcredit Wallet</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" type="image/png" href="/wallet-icon.png">
+    <script src="/site-config.js" defer></script>
+    <script src="/fallback.js" defer></script>
+  </head>
+  <body data-action="pay" data-scheme="bcrwallet">
+    <main>
+      <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
+      <h1>Continue in Bitcredit Wallet</h1>
+      <p id="status">This payment link is designed to open securely in the wallet app.</p>
+      <div class="actions" aria-label="Wallet actions">
+        <button class="primary" id="open-wallet" type="button">Open wallet</button>
+        <a class="button" id="android-install" href="https://play.google.com/store/apps/details?id=org.bitcr.wallet" target="_blank" rel="noopener noreferrer">Get it on Google Play</a>
+        <a class="button" id="ios-install" href="#" target="_blank" rel="noopener noreferrer" hidden>Download for iPhone</a>
+      </div>
+      <noscript><p>JavaScript is required to pass this link to the wallet app.</p></noscript>
+    </main>
+    <footer class="site-footer">
+      <nav aria-label="Bitcredit links">
+        <a href="https://bit.cr/">bit.cr</a>
+        <a href="https://static.bit.cr/wallet/privacy-policy/">Privacy policy</a>
+        <a href="https://github.com/BitcreditProtocol">GitHub</a>
+      </nav>
+    </footer>
+  </body>
+</html>

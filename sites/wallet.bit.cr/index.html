@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <!-- When the production App Store listing is live, add:
+      <meta name="apple-itunes-app" content="app-id=REPLACE_WITH_APPLE_APP_STORE_ID, app-argument=https://wallet.bit.cr/">
+    -->
+    <title>Bitcredit Wallet</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" type="image/png" href="/wallet-icon.png">
+    <script src="/site-config.js" defer></script>
+    <script src="/landing.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
+      <h1>Bitcredit Wallet</h1>
+      <p>The Bitcoin-native, non-custodial wallet for sending, requesting and receiving eCash.</p>
+      <div class="desktop-qr" id="desktop-qr" hidden>
+        <img src="/qr-wallet.png" width="168" height="168" alt="QR code for wallet.bit.cr">
+        <p>Scan to open wallet.bit.cr on your phone</p>
+      </div>
+      <div class="actions" aria-label="Wallet actions">
+        <a class="button primary" id="open-wallet" href="bcrwallet://open">Open wallet</a>
+        <a class="button" id="android-install" href="https://play.google.com/store/apps/details?id=org.bitcr.wallet" target="_blank" rel="noopener noreferrer">Get it on Google Play</a>
+        <a class="button" id="ios-install" href="#" target="_blank" rel="noopener noreferrer" hidden>Download for iPhone</a>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <nav aria-label="Bitcredit links">
+        <a href="https://bit.cr/">bit.cr</a>
+        <a href="https://static.bit.cr/wallet/privacy-policy/">Privacy policy</a>
+        <a href="https://github.com/BitcreditProtocol">GitHub</a>
+      </nav>
+    </footer>
+  </body>
+</html>

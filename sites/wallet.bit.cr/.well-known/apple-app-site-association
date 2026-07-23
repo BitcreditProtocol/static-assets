@@ -1,0 +1,21 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "85W65YFC4J.org.bitcr.wallet"
+        ],
+        "components": [
+          {
+            "/": "/pay/*",
+            "comment": "Bitcredit Wallet payment links"
+          },
+          {
+            "/": "/receive/*",
+            "comment": "Bitcredit Wallet receive links"
+          }
+        ]
+      }
+    ]
+  }
+}

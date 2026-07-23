@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "org.bitcr.wallet.staging",
+      "sha256_cert_fingerprints": [
+        "2B:6E:79:E3:76:5F:33:E4:9A:BD:9D:27:55:81:35:8B:1D:5F:02:99:9F:17:A3:FD:EF:12:F1:E0:B9:93:3B:0C"
+      ]
+    }
+  }
+]

@@ -1,0 +1,24 @@
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'none'; img-src 'self'
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+
+/.well-known/apple-app-site-association
+  Cache-Control: public, max-age=3600
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/assetlinks.json
+  Cache-Control: public, max-age=3600
+  Content-Type: application/json; charset=utf-8
+
+/site-config.js
+  Cache-Control: no-store
+
+/pay/*
+  Cache-Control: no-store
+
+/receive/*
+  Cache-Control: no-store
