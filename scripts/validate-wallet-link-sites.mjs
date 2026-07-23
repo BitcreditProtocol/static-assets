@@ -18,8 +18,10 @@ const sites = [
     host: "wallet-staging.bit.cr",
     appID: "85W65YFC4J.org.bitcr.wallet.staging",
     packageName: "org.bitcr.wallet.staging",
-    androidAppSigningFingerprint:
+    androidAppSigningFingerprints: [
       "2B:6E:79:E3:76:5F:33:E4:9A:BD:9D:27:55:81:35:8B:1D:5F:02:99:9F:17:A3:FD:EF:12:F1:E0:B9:93:3B:0C",
+      "80:71:37:D5:D0:7B:1F:2C:82:0E:8C:79:CD:4C:13:55:40:09:5F:52:50:1F:9A:DE:FC:A3:3A:48:3F:76:B1:C2",
+    ],
     scheme: "bcrwallet-staging",
     androidInstallUrl: null,
     iosInstallUrl: null,
@@ -30,8 +32,10 @@ const sites = [
     host: "wallet.bit.cr",
     appID: "85W65YFC4J.org.bitcr.wallet",
     packageName: "org.bitcr.wallet",
-    androidAppSigningFingerprint:
+    androidAppSigningFingerprints: [
       "99:60:73:5F:11:EB:2C:E0:4C:00:81:5C:2F:D8:6E:10:95:B0:D4:01:5A:AA:EC:0D:F9:79:91:60:C6:14:99:35",
+      "80:71:37:D5:D0:7B:1F:2C:82:0E:8C:79:CD:4C:13:55:40:09:5F:52:50:1F:9A:DE:FC:A3:3A:48:3F:76:B1:C2",
+    ],
     scheme: "bcrwallet",
     androidInstallUrl: "https://play.google.com/store/apps/details?id=org.bitcr.wallet",
     iosInstallUrl: "https://testflight.apple.com/join/EjhdhNFh",
@@ -122,7 +126,7 @@ for (const site of sites) {
   assert.deepEqual(assetLinks[0].relation, ["delegate_permission/common.handle_all_urls"]);
   const fingerprints = assetLinks[0].target.sha256_cert_fingerprints;
   assert.ok(fingerprints.length > 0, `${site.host}: at least one Android fingerprint is required`);
-  assert.deepEqual(fingerprints, [site.androidAppSigningFingerprint]);
+  assert.deepEqual(fingerprints, site.androidAppSigningFingerprints);
   const invalidFingerprints = fingerprints.filter((value) => !fingerprintPattern.test(value));
   if (invalidFingerprints.length > 0) {
     const message = `${site.host}: replace the Android app-signing SHA-256 placeholder before deployment`;

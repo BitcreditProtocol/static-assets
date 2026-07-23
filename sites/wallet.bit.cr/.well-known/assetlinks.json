@@ -7,7 +7,8 @@
       "namespace": "android_app",
       "package_name": "org.bitcr.wallet",
       "sha256_cert_fingerprints": [
-        "99:60:73:5F:11:EB:2C:E0:4C:00:81:5C:2F:D8:6E:10:95:B0:D4:01:5A:AA:EC:0D:F9:79:91:60:C6:14:99:35"
+        "99:60:73:5F:11:EB:2C:E0:4C:00:81:5C:2F:D8:6E:10:95:B0:D4:01:5A:AA:EC:0D:F9:79:91:60:C6:14:99:35",
+        "80:71:37:D5:D0:7B:1F:2C:82:0E:8C:79:CD:4C:13:55:40:09:5F:52:50:1F:9A:DE:FC:A3:3A:48:3F:76:B1:C2"
       ]
     }
   }

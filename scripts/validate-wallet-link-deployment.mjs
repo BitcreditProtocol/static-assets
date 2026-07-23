@@ -4,8 +4,10 @@ const environments = {
   "wallet-staging.bit.cr": {
     appID: "85W65YFC4J.org.bitcr.wallet.staging",
     packageName: "org.bitcr.wallet.staging",
-    androidAppSigningFingerprint:
+    androidAppSigningFingerprints: [
       "2B:6E:79:E3:76:5F:33:E4:9A:BD:9D:27:55:81:35:8B:1D:5F:02:99:9F:17:A3:FD:EF:12:F1:E0:B9:93:3B:0C",
+      "80:71:37:D5:D0:7B:1F:2C:82:0E:8C:79:CD:4C:13:55:40:09:5F:52:50:1F:9A:DE:FC:A3:3A:48:3F:76:B1:C2",
+    ],
     scheme: "bcrwallet-staging",
     androidInstallUrl: null,
     iosInstallUrl: null,
@@ -14,8 +16,10 @@ const environments = {
   "wallet.bit.cr": {
     appID: "85W65YFC4J.org.bitcr.wallet",
     packageName: "org.bitcr.wallet",
-    androidAppSigningFingerprint:
+    androidAppSigningFingerprints: [
       "99:60:73:5F:11:EB:2C:E0:4C:00:81:5C:2F:D8:6E:10:95:B0:D4:01:5A:AA:EC:0D:F9:79:91:60:C6:14:99:35",
+      "80:71:37:D5:D0:7B:1F:2C:82:0E:8C:79:CD:4C:13:55:40:09:5F:52:50:1F:9A:DE:FC:A3:3A:48:3F:76:B1:C2",
+    ],
     scheme: "bcrwallet",
     androidInstallUrl: "https://play.google.com/store/apps/details?id=org.bitcr.wallet",
     iosInstallUrl: "https://testflight.apple.com/join/EjhdhNFh",
@@ -53,9 +57,10 @@ const assetLinksResponse = await get("/.well-known/assetlinks.json");
 assert.match(assetLinksResponse.headers.get("content-type") ?? "", /^application\/json\b/i);
 const assetLinks = await assetLinksResponse.json();
 assert.equal(assetLinks[0].target.package_name, environment.packageName);
-assert.deepEqual(assetLinks[0].target.sha256_cert_fingerprints, [
-  environment.androidAppSigningFingerprint,
-]);
+assert.deepEqual(
+  assetLinks[0].target.sha256_cert_fingerprints,
+  environment.androidAppSigningFingerprints,
+);
 assert.ok(
   assetLinks[0].target.sha256_cert_fingerprints.every((value) => fingerprintPattern.test(value)),
   "assetlinks.json contains a missing or malformed app-signing SHA-256 fingerprint",

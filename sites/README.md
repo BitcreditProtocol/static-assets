@@ -62,7 +62,9 @@ The wallet app must explicitly handle custom-scheme host `open` as a home action
 
 ### Deployment identities
 
-The production and staging Android app-signing SHA-256 certificate fingerprints are configured in their respective `assetlinks.json` files. Production uses the **app signing certificate** shown by Play Console, not the upload-key certificate. If the signing key changes, update both the association file and its expected value in the validation scripts. Multiple fingerprints may be listed temporarily during a signing-key rotation, together with a matching validation update.
+The production and staging Android app-signing SHA-256 certificate fingerprints are configured in their respective `assetlinks.json` files. Both environments authorize their store signing certificate and the CI signing certificate used for directly distributed APKs.
+
+If a signing key changes, update the association file and its expected fingerprint list in both validation scripts. Only retain fingerprints for APKs that should open App Links in that environment.
 
 The production root HTML also contains the inactive future marker `REPLACE_WITH_APPLE_APP_STORE_ID`. It is inside a comment and does not block the TestFlight-based deployment. When the production App Store listing is public, replace it with the numeric Apple ID, enable the `apple-itunes-app` meta tag, and replace the TestFlight URL in `sites/wallet.bit.cr/site-config.js` with the App Store listing URL.
 
