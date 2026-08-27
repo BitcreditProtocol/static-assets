@@ -8,9 +8,9 @@ const strict = process.argv.includes("--strict");
 const fingerprintPattern = /^(?:[0-9A-F]{2}:){31}[0-9A-F]{2}$/;
 const footerLinks = [
   "https://bit.cr/",
-  "https://static.bit.cr/wallet/privacy-policy/",
   "https://github.com/BitcreditProtocol",
 ];
+const removedFooterLinks = ["https://static.bit.cr/wallet/privacy-policy/"];
 
 const sites = [
   {
@@ -170,10 +170,12 @@ for (const site of sites) {
   const walletIconPng = await readBinary(site, "wallet-icon.png");
   assert.deepEqual([...walletIconPng.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
   for (const footerLink of footerLinks) assert.ok(rootHtml.includes(footerLink));
+  for (const footerLink of removedFooterLinks) assert.ok(!rootHtml.includes(footerLink));
 
   const notFoundHtml = await read(site, "404.html");
   assert.ok(notFoundHtml.includes('src="/wallet-icon.png"'));
   for (const footerLink of footerLinks) assert.ok(notFoundHtml.includes(footerLink));
+  for (const footerLink of removedFooterLinks) assert.ok(!notFoundHtml.includes(footerLink));
   if (site.directory === "wallet.bit.cr") {
     assert.ok(rootHtml.includes(site.androidInstallUrl));
     assert.ok(rootHtml.includes("REPLACE_WITH_APPLE_APP_STORE_ID"));
@@ -189,6 +191,7 @@ for (const site of sites) {
     assert.ok(html.includes('src="/wallet-icon.png"'));
     assert.doesNotMatch(html, /requested-link|location\.href|analytics\.(js|google)/i);
     for (const footerLink of footerLinks) assert.ok(html.includes(footerLink));
+    for (const footerLink of removedFooterLinks) assert.ok(!html.includes(footerLink));
 
     const pathPayload = '{"action":"test/path"}';
     const pathResult = runFallback(fallbackScript, {
