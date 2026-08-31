@@ -8,3 +8,11 @@ Published content is isolated by deployment:
 - [`sites/`](sites/README.md) contains independent website deployment roots.
 
 The repository root must never be used as a deployment root or build output directory. See the [sites deployment guide](sites/README.md) for the wallet Universal/App Link configuration and validation steps.
+
+## Wallet minimum supported version
+
+| Wallet environment | Path under `static/` |
+| --- | --- |
+| Development | [`wallet/min-version/dev/min-supported-version.json`](static/wallet/min-version/dev/min-supported-version.json) |
+| Staging | [`wallet/min-version/staging/min-supported-version.json`](static/wallet/min-version/staging/min-supported-version.json) |
+| Production | [`wallet/min-version/prod/min-supported-version.json`](static/wallet/min-version/prod/min-supported-version.json) |

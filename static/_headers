@@ -1,2 +1,8 @@
 /*.png
   Cache-Control: public, max-age=86400
+
+/wallet/min-version/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-store
+  Content-Type: application/json; charset=utf-8
+  X-Content-Type-Options: nosniff
