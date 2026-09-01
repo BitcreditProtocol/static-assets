@@ -31,15 +31,24 @@ Both hosted environments support the same URL contract:
 ```text
 https://<host>/pay/<payload>
 https://<host>/receive/<payload>
+https://<host>/contact/<payload>
 ```
 
-The browser fallback also accepts `https://<host>/pay/?data=<payload>` and `https://<host>/receive/?data=<payload>` during the compatibility period. It never renders the payload or calls analytics/network APIs. It replaces the current history entry with `/pay/` or `/receive/` before offering the custom-scheme button. This reduces exposure after the initial request, but it cannot prevent the original URL from reaching browser history or Cloudflare request metadata. Links carrying redeemable value should move to short-lived opaque identifiers rather than bearer-like data in a future protocol revision.
+The browser fallback also accepts `https://<host>/pay/?data=<payload>`, `https://<host>/receive/?data=<payload>` and `https://<host>/contact/?data=<payload>` during the compatibility period. It never renders the payload or calls analytics/network APIs. It replaces the current history entry with `/pay/`, `/receive/` or `/contact/` before offering the custom-scheme button. This reduces exposure after the initial request, but it cannot prevent the original URL from reaching browser history or Cloudflare request metadata. Links carrying redeemable value should move to short-lived opaque identifiers rather than bearer-like data in a future protocol revision.
 
-For new links, `/pay` and `/receive` are part of the routing contract, not decorative path labels. The app should validate that the decoded payload action is compatible with the path action and reject mismatches instead of silently routing from the JSON action alone. Any payload-only legacy behavior should remain an explicit compatibility path with separate tests.
+For new links, `/pay`, `/receive` and `/contact` are part of the routing contract, not decorative path labels. The app should validate that the decoded payload action is compatible with the path action and reject mismatches instead of silently routing from the JSON action alone. Any payload-only legacy behavior should remain an explicit compatibility path with separate tests.
+
+### Contact links
+
+`/contact/<payload>` is the "add this person to my contacts" action. The payload carries the wallet ID being shared; the recipient supplies the display name. The app should open its create-contact screen with the wallet ID prefilled and focus the name field, so the only required input is the name. It must not create the contact silently: the screen is a confirmation step, and an unattended write would let any link add entries to the contact list.
+
+Unlike `/pay` and `/receive`, a contact payload is not redeemable value, so a leaked contact link cannot move funds. It is still identifying data about both parties, which is why `/contact/*` keeps the same `no-store`, `no-referrer`, noindex and URL-stripping treatment as the payload routes rather than being treated as a public page.
+
+The app should reject a contact payload whose wallet ID is malformed or is the user's own wallet ID, instead of creating an unusable or self-referential contact. If the wallet ID already exists in the contact list, prefer opening the existing contact over creating a duplicate.
 
 ### Root landing and install links
 
-The root URL is intentionally a web landing page and is not claimed by the app. Only actionable `/pay/*` and `/receive/*` URLs are configured as Universal/App Links. Installed users can launch the wallet using the explicit “Open wallet” button.
+The root URL is intentionally a web landing page and is not claimed by the app. Only actionable `/pay/*`, `/receive/*` and `/contact/*` URLs are configured as Universal/App Links. Installed users can launch the wallet using the explicit “Open wallet” button.
 
 The current launch and installation destinations are:
 
@@ -50,7 +59,7 @@ The current launch and installation destinations are:
 
 If the product later decides that every `wallet.bit.cr` link should represent “open wallet,” including `/` in the app associations would also be valid, but that is a different user-experience decision.
 
-On mobile, the relevant install option is emphasized. Desktop visitors see a locally generated QR code above the available platform listings. The production QR opens `https://wallet.bit.cr/`; the staging QR opens `https://wallet-staging.bit.cr/`. No external QR service or tracking redirect is involved. The same production install options appear on `/pay/*` and `/receive/*` browser fallbacks after the sensitive payload has been removed from the visible URL.
+On mobile, the relevant install option is emphasized. Desktop visitors see a locally generated QR code above the available platform listings. The production QR opens `https://wallet.bit.cr/`; the staging QR opens `https://wallet-staging.bit.cr/`. No external QR service or tracking redirect is involved. The same production install options appear on `/pay/*`, `/receive/*` and `/contact/*` browser fallbacks after the sensitive payload has been removed from the visible URL.
 
 Both isolated wallet deployments include a copy of the wallet icon from `static/wallet/assets/icon.png`. The copy is required because a Cloudflare Pages project rooted under `sites/` cannot read files from the separate `static/` deployment root.
 
@@ -86,9 +95,9 @@ node scripts/validate-wallet-link-sites.mjs --strict
 
 ### Cloudflare security settings
 
-Keep Web Analytics and third-party scripts disabled. Do not put Access, authentication, redirects, or a managed challenge in front of either `/.well-known/` endpoint. If request logs or Logpush are enabled, establish a retention/redaction policy for `/pay/*` and `/receive/*`; static Pages files cannot redact the URL before it reaches the edge.
+Keep Web Analytics and third-party scripts disabled. Do not put Access, authentication, redirects, or a managed challenge in front of either `/.well-known/` endpoint. If request logs or Logpush are enabled, establish a retention/redaction policy for `/pay/*`, `/receive/*` and `/contact/*`; static Pages files cannot redact the URL before it reaches the edge.
 
-The checked-in `_headers` files provide JSON content types, `no-referrer`, `no-store` on payload routes, a restrictive Content Security Policy, clickjacking protection, and search-engine exclusion. The `_redirects` files internally serve the privacy-safe fallback for `/pay/*` and `/receive/*`.
+The checked-in `_headers` files provide JSON content types, `no-referrer`, `no-store` on payload routes, a restrictive Content Security Policy, clickjacking protection, and search-engine exclusion. The `_redirects` files internally serve the privacy-safe fallback for `/pay/*`, `/receive/*` and `/contact/*`.
 
 ### Deployment validation
 
@@ -120,7 +129,7 @@ adb shell pm verify-app-links --re-verify org.bitcr.wallet
 adb shell pm get-app-links org.bitcr.wallet
 ```
 
-On physical Android and iOS devices, tap both `/pay/<payload>` and `/receive/<payload>` links with the app fully stopped and again while it is already running. For iOS, do this after the flavor-specific Associated Domains entitlement is present in the signed build, using Notes or Messages as the link source. Apple CDN copies can be inspected at:
+On physical Android and iOS devices, tap `/pay/<payload>`, `/receive/<payload>` and `/contact/<payload>` links with the app fully stopped and again while it is already running. For iOS, do this after the flavor-specific Associated Domains entitlement is present in the signed build, using Notes or Messages as the link source. Apple CDN copies can be inspected at:
 
 ```text
 https://app-site-association.cdn-apple.com/a/v1/wallet-staging.bit.cr

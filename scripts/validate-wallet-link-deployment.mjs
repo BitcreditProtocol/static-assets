@@ -50,7 +50,7 @@ const aasa = await aasaResponse.json();
 assert.deepEqual(aasa.applinks.details[0].appIDs, [environment.appID]);
 assert.deepEqual(
   aasa.applinks.details[0].components.map((component) => component["/"]),
-  ["/pay/*", "/receive/*"],
+  ["/pay/*", "/receive/*", "/contact/*"],
 );
 
 const assetLinksResponse = await get("/.well-known/assetlinks.json");
@@ -90,7 +90,7 @@ if (environment.iosInstallUrl) {
   assert.ok(siteConfigBody.includes(environment.iosInstallUrl));
 }
 
-for (const action of ["pay", "receive"]) {
+for (const action of ["pay", "receive", "contact"]) {
   const marker = `deployment-validation-${action}`;
   const fallbackResponse = await get(`/${action}/${marker}`);
   const fallbackBody = await fallbackResponse.text();

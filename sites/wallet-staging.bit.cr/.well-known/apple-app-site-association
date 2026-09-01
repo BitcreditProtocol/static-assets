@@ -13,6 +13,10 @@
           {
             "/": "/receive/*",
             "comment": "Bitcredit Wallet staging receive links"
+          },
+          {
+            "/": "/contact/*",
+            "comment": "Bitcredit Wallet staging contact links"
           }
         ]
       }
