@@ -5,16 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <title>Invalid Bitcredit Wallet Staging Link</title>
+    <title>Add staging contact in Bitcredit Wallet</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="icon" type="image/png" href="/wallet-icon.png">
+    <script src="/site-config.js" defer></script>
+    <script src="/fallback.js" defer></script>
   </head>
-  <body>
+  <body data-action="contact" data-scheme="bcrwallet-staging">
     <main>
       <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
       <p class="environment">Staging</p>
-      <h1>Link not recognized</h1>
-      <p>This is not a valid Bitcredit Wallet staging payment, receive or contact link.</p>
+      <h1>Continue in Bitcredit Wallet</h1>
+      <p id="status">This contact link opens the staging wallet with the wallet ID already filled in, so you only need to add a name.</p>
+      <div class="actions" aria-label="Wallet actions">
+        <button class="primary" id="open-wallet" type="button">Open staging wallet</button>
+      </div>
+      <noscript><p>JavaScript is required to pass this link to the wallet app.</p></noscript>
     </main>
     <footer class="site-footer">
       <nav aria-label="Bitcredit links">

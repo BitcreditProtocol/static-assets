@@ -22,3 +22,6 @@
 
 /receive/*
   Cache-Control: no-store
+
+/contact/*
+  Cache-Control: no-store

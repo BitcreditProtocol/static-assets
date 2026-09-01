@@ -117,7 +117,7 @@ for (const site of sites) {
   assert.deepEqual(aasaDetails[0].appIDs, [site.appID]);
   assert.deepEqual(
     aasaDetails[0].components.map((component) => component["/"]),
-    ["/pay/*", "/receive/*"],
+    ["/pay/*", "/receive/*", "/contact/*"],
   );
 
   const assetLinks = JSON.parse(await read(site, ".well-known/assetlinks.json"));
@@ -137,6 +137,7 @@ for (const site of sites) {
   const redirects = await read(site, "_redirects");
   assert.match(redirects, /^\/pay\/\* \/pay\/index\.html 200$/m);
   assert.match(redirects, /^\/receive\/\* \/receive\/index\.html 200$/m);
+  assert.match(redirects, /^\/contact\/\* \/contact\/index\.html 200$/m);
 
   const headers = await read(site, "_headers");
   for (const requiredHeader of [
@@ -184,7 +185,7 @@ for (const site of sites) {
     );
   }
 
-  for (const action of ["pay", "receive"]) {
+  for (const action of ["pay", "receive", "contact"]) {
     const html = await read(site, `${action}/index.html`);
     assert.ok(html.includes(`data-action="${action}"`));
     assert.ok(html.includes(`data-scheme="${site.scheme}"`));
@@ -245,6 +246,7 @@ const allFiles = await Promise.all(
     read(site, "fallback.js"),
     read(site, "pay/index.html"),
     read(site, "receive/index.html"),
+    read(site, "contact/index.html"),
   ]),
 );
 assert.doesNotMatch(allFiles.join("\n"), /wallet\.example\.com/);
