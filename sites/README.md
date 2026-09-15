@@ -54,7 +54,7 @@ The current launch and installation destinations are:
 
 - Production “Open wallet”: `bcrwallet://open`.
 - Production Android install: [Google Play](https://play.google.com/store/apps/details?id=org.bitcr.wallet).
-- Production iOS install: [public TestFlight beta](https://testflight.apple.com/join/EjhdhNFh).
+- Production iOS install: [App Store](https://apps.apple.com/app/id6764422592).
 - Staging “Open wallet”: `bcrwallet-staging://open`; staging builds remain tester-distributed.
 
 If the product later decides that every `wallet.bit.cr` link should represent “open wallet,” including `/` in the app associations would also be valid, but that is a different user-experience decision.
@@ -63,7 +63,7 @@ On mobile, the relevant install option is emphasized. Desktop visitors see a loc
 
 Both isolated wallet deployments include a copy of the wallet icon from `static/wallet/assets/icon.png`. The copy is required because a Cloudflare Pages project rooted under `sites/` cannot read files from the separate `static/` deployment root.
 
-Using the public TestFlight URL is appropriate while iOS remains a beta, but it must be labeled as TestFlight rather than as an App Store release. Apple Smart App Banners require the production App Store's numeric Apple ID and cannot target a TestFlight invitation.
+The iOS install link points at the production App Store listing (Apple ID `6764422592`). If a TestFlight invitation URL is ever configured instead, the pages label it as a TestFlight beta rather than as an App Store release. Apple Smart App Banners require the production App Store's numeric Apple ID and cannot target a TestFlight invitation.
 
 The pages mirror the colors, typography, card and button conventions from [`BitcreditProtocol/ui`](https://github.com/BitcreditProtocol/ui). They intentionally do not install the React component package: these are small static fallback pages, while the published UI library requires React and a build step. Keep the CSS token block synchronized when the design system changes. If the UI repository later publishes a framework-independent token stylesheet, replace the mirrored block with that versioned build artifact.
 
@@ -75,9 +75,9 @@ The production and staging Android app-signing SHA-256 certificate fingerprints 
 
 If a signing key changes, update the association file and its expected fingerprint list in both validation scripts. Only retain fingerprints for APKs that should open App Links in that environment.
 
-The production root HTML also contains the inactive future marker `REPLACE_WITH_APPLE_APP_STORE_ID`. It is inside a comment and does not block the TestFlight-based deployment. When the production App Store listing is public, replace it with the numeric Apple ID, enable the `apple-itunes-app` meta tag, and replace the TestFlight URL in `sites/wallet.bit.cr/site-config.js` with the App Store listing URL.
+The production root HTML carries the `apple-itunes-app` Smart App Banner meta tag for the production App Store listing (Apple ID `6764422592`). The banner is intentionally limited to the root landing page: the `/pay/*`, `/receive/*` and `/contact/*` fallback pages rely on their install buttons instead, because a static page cannot pass the per-link payload as a banner `app-argument`. When the app is already installed, tapping the banner opens the app with `https://wallet.bit.cr/`, which the app must treat as a home action.
 
-No required Android or install-listing placeholders remain: the signing fingerprints, Google Play URL and public TestFlight URL are configured.
+No required Android or install-listing placeholders remain: the signing fingerprints, Google Play URL and App Store URL are configured.
 
 The AASA files use the Apple development team currently configured in the wallet project (`85W65YFC4J`). Before production deployment, inspect the signed app's `application-identifier` entitlement and confirm that its prefix and bundle ID exactly match the AASA `appIDs`; legacy Apple accounts can have an App ID prefix that differs from the Team ID.
 
