@@ -43,7 +43,7 @@ const sites = [
     ],
     scheme: "bcrwallet",
     androidInstallUrl: "https://play.google.com/store/apps/details?id=org.bitcr.wallet",
-    iosInstallUrl: "https://testflight.apple.com/join/EjhdhNFh",
+    iosInstallUrl: "https://apps.apple.com/app/id6764422592",
     qrUrl: "https://wallet.bit.cr/",
   },
 ];
@@ -184,10 +184,18 @@ for (const site of sites) {
   for (const footerLink of removedFooterLinks) assert.ok(!notFoundHtml.includes(footerLink));
   if (site.directory === "wallet.bit.cr") {
     assert.ok(rootHtml.includes(site.androidInstallUrl));
-    assert.ok(rootHtml.includes("REPLACE_WITH_APPLE_APP_STORE_ID"));
-    console.warn(
-      "WARNING: wallet.bit.cr: Smart App Banner remains disabled until the production Apple App Store ID is available",
+    assert.match(
+      rootHtml,
+      /^\s*<meta name="apple-itunes-app" content="app-id=6764422592, app-argument=https:\/\/wallet\.bit\.cr\/">$/m,
+      "wallet.bit.cr: root page must carry the Smart App Banner for the production App Store listing",
     );
+    assert.doesNotMatch(rootHtml, /<!--[^>]*apple-itunes-app/, "wallet.bit.cr: Smart App Banner must not be commented out");
+    for (const action of ["pay", "receive", "contact"]) {
+      assert.ok(
+        !(await read(site, `${action}/index.html`)).includes("apple-itunes-app"),
+        `wallet.bit.cr: ${action} fallback page must not carry a Smart App Banner`,
+      );
+    }
   }
 
   for (const action of ["pay", "receive", "contact"]) {
