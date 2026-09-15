@@ -11,6 +11,7 @@ const environments = {
     scheme: "bcrwallet-staging",
     androidInstallUrl: null,
     iosInstallUrl: null,
+    smartAppBannerAppId: null,
     qrUrl: "https://wallet-staging.bit.cr/",
   },
   "wallet.bit.cr": {
@@ -22,7 +23,8 @@ const environments = {
     ],
     scheme: "bcrwallet",
     androidInstallUrl: "https://play.google.com/store/apps/details?id=org.bitcr.wallet",
-    iosInstallUrl: "https://testflight.apple.com/join/EjhdhNFh",
+    iosInstallUrl: "https://apps.apple.com/app/id6764422592",
+    smartAppBannerAppId: "6764422592",
     qrUrl: "https://wallet.bit.cr/",
   },
 };
@@ -73,6 +75,13 @@ assert.ok(rootBody.includes(`${environment.scheme}://open`));
 assert.ok(rootBody.includes('src="/wallet-icon.png"'));
 assert.ok(rootBody.includes('src="/qr-wallet.png"'));
 assert.ok(rootBody.includes(new URL(environment.qrUrl).host));
+if (environment.smartAppBannerAppId) {
+  const bannerTag = `<meta name="apple-itunes-app" content="app-id=${environment.smartAppBannerAppId}, app-argument=https://${requestedHost}/">`;
+  assert.ok(rootBody.includes(bannerTag), "root page must carry the Smart App Banner for the production App Store listing");
+  assert.doesNotMatch(rootBody, /<!--[^>]*apple-itunes-app/, "Smart App Banner must not be commented out");
+} else {
+  assert.ok(!rootBody.includes("apple-itunes-app"), "root page must not carry a Smart App Banner");
+}
 
 const qrResponse = await get("/qr-wallet.png");
 assert.match(qrResponse.headers.get("content-type") ?? "", /^image\/png\b/i);
@@ -95,6 +104,7 @@ for (const action of ["pay", "receive", "contact"]) {
   const fallbackResponse = await get(`/${action}/${marker}`);
   const fallbackBody = await fallbackResponse.text();
   assert.ok(!fallbackBody.includes(marker), `${action}: fallback response exposed the payload`);
+  assert.ok(!fallbackBody.includes("apple-itunes-app"), `${action}: fallback page must not carry a Smart App Banner`);
   assert.equal(fallbackResponse.headers.get("referrer-policy"), "no-referrer");
   assert.match(fallbackResponse.headers.get("cache-control") ?? "", /\bno-store\b/i);
   assert.match(fallbackResponse.headers.get("content-security-policy") ?? "", /default-src 'none'/);
