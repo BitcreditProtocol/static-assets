@@ -11,6 +11,11 @@ const footerLinks = [
   "https://github.com/BitcreditProtocol",
 ];
 const removedFooterLinks = ["https://static.bit.cr/wallet/privacy-policy/"];
+// The wallet emits exactly these network segments (`AppConfig.networkNameFor`
+// in the wallet repository), and only on the actions whose payload belongs to
+// one network. A pay link carries no network segment.
+const networkSegments = ["bitcoin", "testnet"];
+const networkActions = ["receive", "contact"];
 
 const sites = [
   {
@@ -205,21 +210,27 @@ for (const site of sites) {
     assert.equal(pathResult.replacedLocation, `/${action}/`);
     assert.equal(
       pathResult.assignedLocation,
-      `${site.scheme}://${action}/${encodeURIComponent(pathPayload)}`,
+      action === "contact"
+        ? `${site.scheme}://contact/?nodeId=${encodeURIComponent(pathPayload)}`
+        : `${site.scheme}://${action}/${encodeURIComponent(pathPayload)}`,
     );
 
     const queryPayload = '{"action":"test query"}';
-    const queryResult = runFallback(fallbackScript, {
-      url: `https://${site.host}/${action}/?data=${encodeURIComponent(queryPayload)}`,
-      action,
-      scheme: site.scheme,
-      siteConfig,
-      withInstallLinks: site.directory === "wallet.bit.cr",
-    });
-    assert.equal(
-      queryResult.assignedLocation,
-      `${site.scheme}://${action}/${encodeURIComponent(queryPayload)}`,
-    );
+    for (const parameter of action === "contact" ? ["nodeId", "data"] : ["data"]) {
+      const queryResult = runFallback(fallbackScript, {
+        url: `https://${site.host}/${action}/?${parameter}=${encodeURIComponent(queryPayload)}`,
+        action,
+        scheme: site.scheme,
+        siteConfig,
+        withInstallLinks: site.directory === "wallet.bit.cr",
+      });
+      assert.equal(
+        queryResult.assignedLocation,
+        action === "contact"
+          ? `${site.scheme}://contact/?nodeId=${encodeURIComponent(queryPayload)}`
+          : `${site.scheme}://${action}/${encodeURIComponent(queryPayload)}`,
+      );
+    }
 
     const invalidResult = runFallback(fallbackScript, {
       url: `https://${site.host}/${action}/`,
@@ -230,6 +241,48 @@ for (const site of sites) {
     });
     assert.equal(invalidResult.button.disabled, true);
     assert.equal(invalidResult.assignedLocation, null);
+
+    // The app puts the network in the path, so `/<action>/<network>/` has to be
+    // a real page: the deployed `_redirects` rewrites do not fire for it.
+    if (networkActions.includes(action)) {
+      const parameter = action === "contact" ? "nodeId" : "data";
+
+      for (const network of networkSegments) {
+        assert.equal(
+          await read(site, `${action}/${network}/index.html`),
+          html,
+          `${site.host}: ${action}/${network}/index.html must be ${action}/index.html verbatim`,
+        );
+
+        const networkPayload = '{"action":"test network"}';
+        const networkResult = runFallback(fallbackScript, {
+          url: `https://${site.host}/${action}/${network}/?${parameter}=${encodeURIComponent(networkPayload)}`,
+          action,
+          scheme: site.scheme,
+          siteConfig,
+          withInstallLinks: site.directory === "wallet.bit.cr",
+        });
+        assert.equal(
+          networkResult.assignedLocation,
+          action === "contact"
+            ? `${site.scheme}://contact/?nodeId=${encodeURIComponent(networkPayload)}&network=${network}`
+            : `${site.scheme}://${action}/${encodeURIComponent(networkPayload)}?network=${network}`,
+        );
+
+        // A network segment is routing, never the payload: without one the
+        // link is incomplete, and offering to open it would hand the app
+        // "bitcoin" as a token or a wallet id.
+        const bareNetworkResult = runFallback(fallbackScript, {
+          url: `https://${site.host}/${action}/${network}/`,
+          action,
+          scheme: site.scheme,
+          siteConfig,
+          withInstallLinks: site.directory === "wallet.bit.cr",
+        });
+        assert.equal(bareNetworkResult.button.disabled, true);
+        assert.equal(bareNetworkResult.assignedLocation, null);
+      }
+    }
   }
 }
 
@@ -247,6 +300,9 @@ const allFiles = await Promise.all(
     read(site, "pay/index.html"),
     read(site, "receive/index.html"),
     read(site, "contact/index.html"),
+    ...networkActions.flatMap((action) =>
+      networkSegments.map((network) => read(site, `${action}/${network}/index.html`)),
+    ),
   ]),
 );
 assert.doesNotMatch(allFiles.join("\n"), /wallet\.example\.com/);

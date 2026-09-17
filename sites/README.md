@@ -26,21 +26,25 @@ No framework or build command is required. Configure each Git-integrated Pages p
 
 Development intentionally has no website association. It continues to use only `bcrwallet-dev://`.
 
-Both hosted environments support the same URL contract:
+Both hosted environments support the same URL contract. These are the shapes the wallet app generates today (`buildPaymentRequestLink`, `buildTokenClaimLink` and `buildAddContactLink` in `lib/helpers/deeplink_service.dart`):
 
 ```text
-https://<host>/pay/<payload>
-https://<host>/receive/<payload>
-https://<host>/contact/<payload>
+https://<host>/pay/?data=<payload>
+https://<host>/receive/<network>/?data=<payload>
+https://<host>/contact/<network>/?nodeId=<wallet id>
 ```
 
-The browser fallback also accepts `https://<host>/pay/?data=<payload>`, `https://<host>/receive/?data=<payload>` and `https://<host>/contact/?data=<payload>` during the compatibility period. It never renders the payload or calls analytics/network APIs. It replaces the current history entry with `/pay/`, `/receive/` or `/contact/` before offering the custom-scheme button. This reduces exposure after the initial request, but it cannot prevent the original URL from reaching browser history or Cloudflare request metadata. Links carrying redeemable value should move to short-lived opaque identifiers rather than bearer-like data in a future protocol revision.
+`<network>` is `bitcoin` or `testnet` (`AppConfig.networkNameFor`). It is a path segment rather than a second query parameter because WhatsApp's and iMessage's link detectors stop linkifying an https link that carries one, leaving it as inert text.
+
+Each of those paths is a real `index.html` — `receive/bitcoin/`, `contact/testnet/` and so on, each a verbatim copy of its action page, enforced by `scripts/validate-wallet-link-sites.mjs`. The `_redirects` rewrites below would make the copies unnecessary, but they are not applied by the live deployment: `/pay/<payload>` and `/contact/bitcoin/` both return the 404 page on production and staging, while `_headers` rules for the same paths do apply. Until someone gets to the bottom of that in the Pages projects, **a new network segment, or a network segment on `/pay/`, needs a matching directory here or every link of that shape 404s.**
+
+The browser fallback also accepts the legacy `https://<host>/pay/<payload>`, `https://<host>/receive/?data=<payload>` and `https://<host>/contact/?data=<payload>` forms during the compatibility period. It never renders the payload or calls analytics/network APIs. It replaces the current history entry with `/pay/`, `/receive/` or `/contact/` before offering the custom-scheme button. This reduces exposure after the initial request, but it cannot prevent the original URL from reaching browser history or Cloudflare request metadata. Links carrying redeemable value should move to short-lived opaque identifiers rather than bearer-like data in a future protocol revision.
 
 For new links, `/pay`, `/receive` and `/contact` are part of the routing contract, not decorative path labels. The app should validate that the decoded payload action is compatible with the path action and reject mismatches instead of silently routing from the JSON action alone. Any payload-only legacy behavior should remain an explicit compatibility path with separate tests.
 
 ### Contact links
 
-`/contact/<payload>` is the "add this person to my contacts" action. The payload carries the wallet ID being shared; the recipient supplies the display name. The app should open its create-contact screen with the wallet ID prefilled and focus the name field, so the only required input is the name. It must not create the contact silently: the screen is a confirmation step, and an unattended write would let any link add entries to the contact list.
+`/contact/<network>/?nodeId=<wallet id>` is the "add this person to my contacts" action. The payload carries the wallet ID being shared; the recipient supplies the display name. Unlike pay and receive it is named `nodeId`, not `data`, and the custom-scheme handoff has to keep that name — the app reads a contact payload only from a `nodeId` parameter (`AppLinkParser._contactLink`), so the "Open wallet" button emits `<scheme>://contact/?nodeId=<wallet id>&network=<network>` rather than putting the payload in the path. The network is passed on so the app can switch networks by itself instead of rejecting the link. The app should open its create-contact screen with the wallet ID prefilled and focus the name field, so the only required input is the name. It must not create the contact silently: the screen is a confirmation step, and an unattended write would let any link add entries to the contact list.
 
 Unlike `/pay` and `/receive`, a contact payload is not redeemable value, so a leaked contact link cannot move funds. It is still identifying data about both parties, which is why `/contact/*` keeps the same `no-store`, `no-referrer`, noindex and URL-stripping treatment as the payload routes rather than being treated as a public page.
 
