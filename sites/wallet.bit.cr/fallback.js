@@ -9,7 +9,19 @@
   const androidInstall = document.getElementById("android-install");
   const iosInstall = document.getElementById("ios-install");
   const url = new URL(window.location.href);
-  let payload = url.searchParams.get("data");
+  // The wallet app names the contact payload `nodeId` and every other payload
+  // `data`. A contact link reads both, so links shared before this page knew
+  // the difference keep opening.
+  const payloadParameters = action === "contact" ? ["nodeId", "data"] : ["data"];
+  // A wallet link carries its network as a path segment
+  // (`/contact/bitcoin/?nodeId=...`) rather than as a second query parameter,
+  // because WhatsApp and iMessage stop linkifying an https link that has one.
+  const networkSegments = ["bitcoin", "testnet"];
+  let payload = null;
+  for (const parameter of payloadParameters) {
+    if (!payload) payload = url.searchParams.get(parameter);
+  }
+  let network = url.searchParams.get("network");
 
   function configureInstallLink(link, value, defaultLabel) {
     if (!link || !value || value.startsWith("REPLACE_WITH_")) return false;
@@ -51,12 +63,22 @@
     if (hasIOSInstall) iosInstall.classList.add("recommended");
   }
 
-  if (!payload) {
-    const prefix = `/${action}/`;
-    if (url.pathname.startsWith(prefix)) {
-      const encodedPayload = url.pathname.slice(prefix.length).split("/", 1)[0];
+  const prefix = `/${action}/`;
+  if (url.pathname.startsWith(prefix)) {
+    const segments = url.pathname
+      .slice(prefix.length)
+      .split("/")
+      .filter((segment) => segment !== "");
+
+    // A leading network segment is routing, not payload.
+    if (segments.length > 0 && networkSegments.includes(segments[0].toLowerCase())) {
+      const segment = segments.shift().toLowerCase();
+      if (!network) network = segment;
+    }
+
+    if (!payload && segments.length > 0) {
       try {
-        payload = encodedPayload ? decodeURIComponent(encodedPayload) : null;
+        payload = decodeURIComponent(segments[0]);
       } catch {
         payload = null;
       }
@@ -77,6 +99,16 @@
   }
 
   button.addEventListener("click", () => {
-    window.location.assign(`${scheme}://${action}/${encodeURIComponent(payload)}`);
+    // The app reads a contact payload only from `nodeId`, so the custom-scheme
+    // handoff has to name it too; pay and receive keep taking the payload as a
+    // path segment. Passing `network` on lets the app switch networks by itself
+    // instead of failing the link with a mismatch.
+    const parameters = [];
+    if (action === "contact") parameters.push(`nodeId=${encodeURIComponent(payload)}`);
+    if (network) parameters.push(`network=${encodeURIComponent(network)}`);
+    const query = parameters.length > 0 ? `?${parameters.join("&")}` : "";
+    const path = action === "contact" ? "" : encodeURIComponent(payload);
+
+    window.location.assign(`${scheme}://${action}/${path}${query}`);
   });
 })();

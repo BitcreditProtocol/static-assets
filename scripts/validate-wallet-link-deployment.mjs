@@ -99,16 +99,45 @@ if (environment.iosInstallUrl) {
   assert.ok(siteConfigBody.includes(environment.iosInstallUrl));
 }
 
-for (const action of ["pay", "receive", "contact"]) {
-  const marker = `deployment-validation-${action}`;
-  const fallbackResponse = await get(`/${action}/${marker}`);
+// Every link shape the wallet app can generate, and therefore every path a
+// recipient without the app installed can land on.
+const fallbackPaths = (marker) => [
+  `/pay/?data=${marker}`,
+  ...["bitcoin", "testnet"].flatMap((network) => [
+    `/receive/${network}/?data=${marker}`,
+    `/contact/${network}/?nodeId=${marker}`,
+  ]),
+];
+
+for (const path of fallbackPaths("deployment-validation")) {
+  const fallbackResponse = await get(path);
   const fallbackBody = await fallbackResponse.text();
   assert.ok(!fallbackBody.includes(marker), `${action}: fallback response exposed the payload`);
   assert.ok(!fallbackBody.includes("apple-itunes-app"), `${action}: fallback page must not carry a Smart App Banner`);
+  assert.ok(
+    !fallbackBody.includes("deployment-validation"),
+    `${path}: fallback response exposed the payload`,
+  );
   assert.equal(fallbackResponse.headers.get("referrer-policy"), "no-referrer");
   assert.match(fallbackResponse.headers.get("cache-control") ?? "", /\bno-store\b/i);
   assert.match(fallbackResponse.headers.get("content-security-policy") ?? "", /default-src 'none'/);
   assert.match(fallbackResponse.headers.get("x-robots-tag") ?? "", /noindex/i);
+}
+
+// The `_redirects` rewrites are not applied by the live deployment, so the
+// documented `/<action>/<payload>` form 404s on both hosts. Nothing the app
+// generates uses it, hence a warning rather than a failure - but it is the
+// reason the shapes above are served as real files instead.
+for (const action of ["pay", "receive", "contact"]) {
+  const response = await fetch(`https://${requestedHost}/${action}/deployment-validation`, {
+    redirect: "manual",
+    headers: { "user-agent": "bitcredit-wallet-link-validator/1.0" },
+  });
+  if (response.status !== 200) {
+    console.warn(
+      `WARNING: /${action}/<payload> returned HTTP ${response.status}: the _redirects rewrite is not in effect`,
+    );
+  }
 }
 
 console.log(`Deployment validation passed for ${requestedHost}.`);
