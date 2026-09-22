@@ -1,0 +1,22 @@
+name: Validate
+
+# The sites and the wallet minimum versions are served as committed, with no build step, so
+# this is the only check a change gets before it is live.
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: node scripts/validate-wallet-link-sites.mjs --strict
+      - run: node scripts/validate-wallet-min-version.mjs
