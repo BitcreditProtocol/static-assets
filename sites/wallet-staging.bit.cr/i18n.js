@@ -118,6 +118,7 @@
     return strings[language][key] ?? strings[defaultLanguage][key];
   }
 
+  // Line breaks are written as "\n" so no string is ever parsed as HTML.
   function setText(element, text) {
     const nodes = [];
     text.split("\n").forEach((line, i) => {
