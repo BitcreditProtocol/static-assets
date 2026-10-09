@@ -6,11 +6,12 @@ import vm from "node:vm";
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
 const strict = process.argv.includes("--strict");
 const fingerprintPattern = /^(?:[0-9A-F]{2}:){31}[0-9A-F]{2}$/;
-const footerLinks = [
+const footerLinks = ["https://opensource.org/license/mit/"];
+const removedFooterLinks = [
+  "https://static.bit.cr/wallet/privacy-policy/",
   "https://bit.cr/",
   "https://github.com/BitcreditProtocol",
 ];
-const removedFooterLinks = ["https://static.bit.cr/wallet/privacy-policy/"];
 // The wallet emits exactly these network segments (`AppConfig.networkNameFor`
 // in the wallet repository), and only on the actions whose payload belongs to
 // one network. A pay link carries no network segment.
@@ -53,8 +54,9 @@ const read = (site, relativePath) =>
 const readBinary = (site, relativePath) =>
   readFile(path.join(repositoryRoot, "sites", site.directory, relativePath));
 
-function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks }) {
+function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks, userAgent = "Desktop" }) {
   let assignedLocation = null;
+  let qrText = null;
   let replacedLocation = null;
   let clickHandler = null;
   const classList = { add() {} };
@@ -67,14 +69,37 @@ function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks
     },
   };
   const status = { textContent: "" };
+  const openInstalled = { hidden: false };
+  const desktopQr = { hidden: true };
+  const qrCode = {
+    children: [],
+    replaceChildren(...children) {
+      this.children = children;
+    },
+  };
   const elements = new Map([
     ["open-wallet", button],
+    ["open-installed", openInstalled],
     ["status", status],
+    ["desktop-qr", desktopQr],
+    ["qr-code", qrCode],
   ]);
+  const installLinks = [];
   if (withInstallLinks) {
-    elements.set("android-install", { classList, hidden: false, href: "", textContent: "" });
-    elements.set("ios-install", { classList, hidden: true, href: "", textContent: "" });
+    for (const id of ["android-install", "ios-install"]) {
+      const link = { classList, hidden: false, href: "", querySelector: () => null };
+      elements.set(id, link);
+      installLinks.push(link);
+    }
   }
+  const svgElement = () => ({
+    attributes: {},
+    style: {},
+    setAttribute(name, value) {
+      this.attributes[name] = value;
+    },
+    appendChild() {},
+  });
   const window = {
     location: {
       href: url,
@@ -90,21 +115,39 @@ function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks
   };
   const document = {
     body: { dataset: { action, scheme } },
+    createElementNS: svgElement,
     getElementById(id) {
       return elements.get(id) ?? null;
+    },
+  };
+  const bitcreditQr = {
+    encodeText(text) {
+      qrText = text;
+      return [[true]];
     },
   };
 
   vm.runInNewContext(script, {
     URL,
+    bitcreditQr,
     bitcreditWalletSite: siteConfig,
     document,
-    navigator: { maxTouchPoints: 0, platform: "", userAgent: "Desktop" },
+    navigator: { maxTouchPoints: 0, platform: "", userAgent },
     window,
   });
   if (clickHandler) clickHandler();
 
-  return { assignedLocation, button, replacedLocation, status };
+  return {
+    assignedLocation,
+    button,
+    desktopQr,
+    installLinks,
+    openInstalled,
+    qrCode,
+    qrText,
+    replacedLocation,
+    status,
+  };
 }
 
 for (const site of sites) {
@@ -159,6 +202,15 @@ for (const site of sites) {
   const fallbackScript = await read(site, "fallback.js");
   assert.doesNotMatch(fallbackScript, /console\.|fetch\(|sendBeacon|XMLHttpRequest/);
 
+  const qrScript = await read(site, "qr.js");
+  assert.doesNotMatch(qrScript, /console\.|fetch\(|sendBeacon|XMLHttpRequest|location/);
+  const qrContext = { TextEncoder };
+  vm.runInNewContext(qrScript, qrContext);
+  assert.equal(qrContext.bitcreditQr.encodeText("a".repeat(17)).length, 21);
+  assert.equal(qrContext.bitcreditQr.encodeText("a".repeat(18)).length, 25);
+  assert.equal(qrContext.bitcreditQr.encodeText("a".repeat(2953)).length, 177);
+  assert.equal(qrContext.bitcreditQr.encodeText("a".repeat(2954)), null);
+
   const landingScript = await read(site, "landing.js");
   assert.doesNotMatch(
     landingScript,
@@ -169,6 +221,7 @@ for (const site of sites) {
   assert.ok(rootHtml.includes('src="/site-config.js"'));
   assert.ok(rootHtml.includes('src="/landing.js"'));
   assert.ok(rootHtml.includes('src="/wallet-icon.png"'));
+  assert.ok(rootHtml.includes('src="/bitcredit-logo.svg"'));
   assert.ok(rootHtml.includes('src="/qr-wallet.png"'));
   assert.ok(rootHtml.includes(new URL(site.qrUrl).host));
   const qrPng = await readBinary(site, "qr-wallet.png");
@@ -179,7 +232,7 @@ for (const site of sites) {
   for (const footerLink of removedFooterLinks) assert.ok(!rootHtml.includes(footerLink));
 
   const notFoundHtml = await read(site, "404.html");
-  assert.ok(notFoundHtml.includes('src="/wallet-icon.png"'));
+  assert.ok(notFoundHtml.includes('src="/bitcredit-logo.svg"'));
   for (const footerLink of footerLinks) assert.ok(notFoundHtml.includes(footerLink));
   for (const footerLink of removedFooterLinks) assert.ok(!notFoundHtml.includes(footerLink));
   if (site.directory === "wallet.bit.cr") {
@@ -202,7 +255,12 @@ for (const site of sites) {
     const html = await read(site, `${action}/index.html`);
     assert.ok(html.includes(`data-action="${action}"`));
     assert.ok(html.includes(`data-scheme="${site.scheme}"`));
-    assert.ok(html.includes('src="/wallet-icon.png"'));
+    assert.ok(html.includes('src="/bitcredit-logo.svg"'));
+    assert.ok(html.includes('src="/qr.js"'));
+    if (site.directory === "wallet.bit.cr") {
+      assert.ok(html.includes(site.androidInstallUrl));
+      assert.ok(html.includes(site.iosInstallUrl));
+    }
     assert.doesNotMatch(html, /requested-link|location\.href|analytics\.(js|google)/i);
     for (const footerLink of footerLinks) assert.ok(html.includes(footerLink));
     for (const footerLink of removedFooterLinks) assert.ok(!html.includes(footerLink));
@@ -216,6 +274,25 @@ for (const site of sites) {
       withInstallLinks: site.directory === "wallet.bit.cr",
     });
     assert.equal(pathResult.replacedLocation, `/${action}/`);
+    assert.equal(pathResult.qrText, `https://${site.host}/${action}/${encodeURIComponent(pathPayload)}`);
+    assert.equal(pathResult.desktopQr.hidden, false);
+    assert.equal(pathResult.qrCode.children.length, 1);
+    assert.equal(pathResult.openInstalled.hidden, true);
+
+    for (const userAgent of ["Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)", "Mozilla/5.0 (Linux; Android 15)"]) {
+      const mobileResult = runFallback(fallbackScript, {
+        url: `https://${site.host}/${action}/${encodeURIComponent(pathPayload)}`,
+        action,
+        scheme: site.scheme,
+        siteConfig,
+        withInstallLinks: site.directory === "wallet.bit.cr",
+        userAgent,
+      });
+      assert.equal(mobileResult.qrText, null);
+      assert.equal(mobileResult.desktopQr.hidden, true);
+      assert.equal(mobileResult.openInstalled.hidden, false);
+      for (const link of mobileResult.installLinks) assert.equal(link.hidden, false);
+    }
     assert.equal(
       pathResult.assignedLocation,
       action === "contact"
@@ -249,6 +326,8 @@ for (const site of sites) {
     });
     assert.equal(invalidResult.button.disabled, true);
     assert.equal(invalidResult.assignedLocation, null);
+    assert.equal(invalidResult.qrText, null);
+    assert.equal(invalidResult.desktopQr.hidden, true);
 
     // The app puts the network in the path, so `/<action>/<network>/` has to be
     // a real page: the deployed `_redirects` rewrites do not fire for it.
@@ -305,6 +384,7 @@ const allFiles = await Promise.all(
     read(site, "landing.js"),
     read(site, "site-config.js"),
     read(site, "fallback.js"),
+    read(site, "qr.js"),
     read(site, "pay/index.html"),
     read(site, "receive/index.html"),
     read(site, "contact/index.html"),
