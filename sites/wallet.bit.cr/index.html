@@ -6,10 +6,11 @@
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="apple-itunes-app" content="app-id=6764422592, app-argument=https://wallet.bit.cr/">
-    <title>Bitcredit Wallet</title>
+    <title data-i18n="title.root">Bitcredit Wallet</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="icon" type="image/png" href="/wallet-icon.png">
     <script src="/site-config.js" defer></script>
+    <script src="/i18n.js" defer></script>
     <script src="/landing.js" defer></script>
   </head>
   <body>
@@ -20,28 +21,28 @@
       <section class="card">
         <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
         <div class="title">
-          <h1>Bitcredit Wallet</h1>
-          <p>The Bitcoin-native, non-custodial wallet for sending, requesting and receiving e-cash.</p>
+          <h1 data-i18n="title.root">Bitcredit Wallet</h1>
+          <p data-i18n="root.description">The Bitcoin-native, non-custodial wallet for sending, requesting and receiving e-cash.</p>
         </div>
         <figure class="desktop-qr" id="desktop-qr" hidden>
-          <div class="qr-code">
-            <img src="/qr-wallet.png" width="160" height="160" alt="QR code for wallet.bit.cr">
+          <div class="qr-code" role="img" aria-label="QR code for wallet.bit.cr" data-i18n-label="root.qr.label">
+            <img src="/qr-wallet.png" width="160" height="160" alt="">
           </div>
-          <figcaption>Scan to open wallet.bit.cr on your phone</figcaption>
+          <figcaption data-i18n="qr.caption">Scan to open on your phone</figcaption>
         </figure>
-        <div class="actions" aria-label="Wallet actions">
-          <a class="button primary" id="open-wallet" href="bcrwallet://open">Open wallet</a>
+        <div class="actions" aria-label="Wallet actions" data-i18n-label="root.actions">
+          <a class="button primary" id="open-wallet" href="bcrwallet://open" data-i18n="open.wallet">Open wallet</a>
           <a class="store-badge app-store" id="ios-install" href="https://apps.apple.com/app/id6764422592" target="_blank" rel="noopener noreferrer">
             <img src="/app-store-icon.svg" width="20" height="24" alt="">
             <span class="store-badge-label">
-              <span class="store-badge-caption">Download on the</span>
+              <span class="store-badge-caption" data-i18n="install.appStore">Download on the</span>
               <span class="store-badge-name">App Store</span>
             </span>
           </a>
           <a class="store-badge google-play" id="android-install" href="https://play.google.com/store/apps/details?id=org.bitcr.wallet" target="_blank" rel="noopener noreferrer">
             <img src="/google-play-icon.svg" width="21" height="24" alt="">
             <span class="store-badge-label">
-              <span class="store-badge-caption">Get it on</span>
+              <span class="store-badge-caption" data-i18n="install.googlePlay">Get it on</span>
               <img class="google-play-wordmark" src="/google-play-wordmark.svg" width="74" height="15" alt="Google Play">
             </span>
           </a>
@@ -49,7 +50,12 @@
       </section>
     </main>
     <footer class="site-footer">
-      <p>© 2026 Bitcredit Protocol.<br class="footer-break"> Released under the <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer">MIT license</a>.</p>
+      <p><span data-i18n="footer.copyright">© 2026 Bitcredit Protocol.</span><br class="footer-break"> <span data-i18n="footer.released">Released under the</span> <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer" data-i18n="footer.license">MIT license</a>.</p>
+      <nav class="language-switch" id="language-switch" aria-label="Language" data-i18n-label="language.label" hidden>
+        <button class="link-button" type="button" lang="en" data-language="en">English</button>
+        <span aria-hidden="true">·</span>
+        <button class="link-button" type="button" lang="es" data-language="es">Español</button>
+      </nav>
     </footer>
   </body>
 </html>

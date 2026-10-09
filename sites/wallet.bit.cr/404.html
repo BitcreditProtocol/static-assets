@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <title>Invalid Bitcredit Wallet Link</title>
+    <title data-i18n="title.notFound">Invalid Bitcredit Wallet Link</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="icon" type="image/png" href="/wallet-icon.png">
+    <script src="/i18n.js" defer></script>
   </head>
   <body>
     <header class="site-header">
@@ -16,13 +17,18 @@
     <main>
       <section class="card">
         <div class="title">
-          <h1>Link not recognized</h1>
-          <p>This is not a valid Bitcredit Wallet payment, receive or contact link.</p>
+          <h1 data-i18n="notFound.heading">Link not recognized</h1>
+          <p data-i18n="notFound.text">This is not a valid Bitcredit Wallet payment, receive or contact link.</p>
         </div>
       </section>
     </main>
     <footer class="site-footer">
-      <p>© 2026 Bitcredit Protocol.<br class="footer-break"> Released under the <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer">MIT license</a>.</p>
+      <p><span data-i18n="footer.copyright">© 2026 Bitcredit Protocol.</span><br class="footer-break"> <span data-i18n="footer.released">Released under the</span> <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer" data-i18n="footer.license">MIT license</a>.</p>
+      <nav class="language-switch" id="language-switch" aria-label="Language" data-i18n-label="language.label" hidden>
+        <button class="link-button" type="button" lang="en" data-language="en">English</button>
+        <span aria-hidden="true">·</span>
+        <button class="link-button" type="button" lang="es" data-language="es">Español</button>
+      </nav>
     </footer>
   </body>
 </html>

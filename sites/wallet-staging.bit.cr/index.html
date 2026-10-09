@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <title>Bitcredit Wallet — Staging</title>
+    <title data-i18n="title.root.staging">Bitcredit Wallet — Staging</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="icon" type="image/png" href="/wallet-icon.png">
     <script src="/site-config.js" defer></script>
+    <script src="/i18n.js" defer></script>
     <script src="/landing.js" defer></script>
   </head>
   <body>
@@ -19,24 +20,29 @@
       <section class="card">
         <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
         <div class="title">
-          <p class="environment">Staging</p>
-          <h1>Bitcredit Wallet</h1>
-          <p>The Bitcoin-native, non-custodial wallet for sending, requesting and receiving e-cash.</p>
+          <p class="environment" data-i18n="staging.label">Staging</p>
+          <h1 data-i18n="title.root">Bitcredit Wallet</h1>
+          <p data-i18n="root.description">The Bitcoin-native, non-custodial wallet for sending, requesting and receiving e-cash.</p>
         </div>
         <figure class="desktop-qr" id="desktop-qr" hidden>
-          <div class="qr-code">
-            <img src="/qr-wallet.png" width="160" height="160" alt="QR code for wallet-staging.bit.cr">
+          <div class="qr-code" role="img" aria-label="QR code for wallet-staging.bit.cr" data-i18n-label="root.qr.label">
+            <img src="/qr-wallet.png" width="160" height="160" alt="">
           </div>
-          <figcaption>Scan to open wallet-staging.bit.cr on your phone</figcaption>
+          <figcaption data-i18n="qr.caption">Scan to open on your phone</figcaption>
         </figure>
-        <div class="actions" id="wallet-actions" aria-label="Wallet actions" hidden>
-          <a class="button primary" id="open-wallet" href="bcrwallet-staging://open" hidden>Open staging wallet</a>
+        <div class="actions" id="wallet-actions" aria-label="Wallet actions" data-i18n-label="root.actions" hidden>
+          <a class="button primary" id="open-wallet" href="bcrwallet-staging://open" hidden data-i18n="open.staging">Open staging wallet</a>
         </div>
-        <p class="privacy">Staging builds are for authorized testers.</p>
+        <p class="privacy" data-i18n="staging.testers">Staging builds are for authorized testers.</p>
       </section>
     </main>
     <footer class="site-footer">
-      <p>© 2026 Bitcredit Protocol.<br class="footer-break"> Released under the <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer">MIT license</a>.</p>
+      <p><span data-i18n="footer.copyright">© 2026 Bitcredit Protocol.</span><br class="footer-break"> <span data-i18n="footer.released">Released under the</span> <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer" data-i18n="footer.license">MIT license</a>.</p>
+      <nav class="language-switch" id="language-switch" aria-label="Language" data-i18n-label="language.label" hidden>
+        <button class="link-button" type="button" lang="en" data-language="en">English</button>
+        <span aria-hidden="true">·</span>
+        <button class="link-button" type="button" lang="es" data-language="es">Español</button>
+      </nav>
     </footer>
   </body>
 </html>
