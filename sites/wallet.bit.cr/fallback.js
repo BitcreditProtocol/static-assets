@@ -5,10 +5,14 @@
   const action = document.body.dataset.action;
   const scheme = config?.customScheme || document.body.dataset.scheme;
   const button = document.getElementById("open-wallet");
+  const openInstalled = document.getElementById("open-installed");
   const status = document.getElementById("status");
   const androidInstall = document.getElementById("android-install");
   const iosInstall = document.getElementById("ios-install");
-  const url = new URL(window.location.href);
+  const desktopQr = document.getElementById("desktop-qr");
+  const qrCode = document.getElementById("qr-code");
+  const actionLink = window.location.href;
+  const url = new URL(actionLink);
   // The wallet app names the contact payload `nodeId` and every other payload
   // `data`. A contact link reads both, so links shared before this page knew
   // the difference keep opening.
@@ -23,44 +27,69 @@
   }
   let network = url.searchParams.get("network");
 
-  function configureInstallLink(link, value, defaultLabel) {
-    if (!link || !value || value.startsWith("REPLACE_WITH_")) return false;
+  function configureInstallLink(link, value) {
+    if (!link) return;
+    if (!value || value.startsWith("REPLACE_WITH_")) {
+      link.hidden = true;
+      return;
+    }
 
     try {
       const installUrl = new URL(value);
-      if (installUrl.protocol !== "https:") return false;
+      if (installUrl.protocol !== "https:") throw new Error("Install links must use HTTPS");
       link.href = installUrl.toString();
-      link.textContent = installUrl.hostname === "testflight.apple.com"
-        ? "Join the iOS beta on TestFlight"
-        : defaultLabel;
-      link.hidden = false;
-      return true;
+      if (installUrl.hostname === "testflight.apple.com") {
+        const caption = link.querySelector(".store-badge-caption");
+        const name = link.querySelector(".store-badge-name");
+        if (caption) caption.textContent = "Join the beta on";
+        if (name) name.textContent = "TestFlight";
+      }
     } catch {
-      return false;
+      link.hidden = true;
     }
   }
 
-  const hasAndroidInstall = configureInstallLink(
-    androidInstall,
-    config?.androidInstallUrl,
-    "Get it on Google Play",
-  );
-  const hasIOSInstall = configureInstallLink(
-    iosInstall,
-    config?.iosInstallUrl,
-    "Download on the App Store",
-  );
+  configureInstallLink(iosInstall, config?.iosInstallUrl);
+  configureInstallLink(androidInstall, config?.androidInstallUrl);
+
   const userAgent = navigator.userAgent || "";
-  const isAndroid = /Android/i.test(userAgent);
-  const isIOS = /iPhone|iPad|iPod/i.test(userAgent) ||
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-  if (isAndroid && iosInstall) {
-    iosInstall.hidden = true;
-    if (hasAndroidInstall) androidInstall.classList.add("recommended");
-  } else if (isIOS && androidInstall) {
-    androidInstall.hidden = true;
-    if (hasIOSInstall) iosInstall.classList.add("recommended");
+  if (!isMobile && openInstalled) openInstalled.hidden = true;
+
+  function showDesktopQr() {
+    const qr = globalThis.bitcreditQr;
+    if (isMobile || !desktopQr || !qrCode || !qr) return;
+
+    const modules = qr.encodeText(actionLink);
+    if (!modules) return;
+
+    const displaySize = Math.min(288, Math.max(160, modules.length * 2));
+    const namespace = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(namespace, "svg");
+    svg.setAttribute("viewBox", `0 0 ${modules.length} ${modules.length}`);
+    svg.setAttribute("width", String(displaySize));
+    svg.setAttribute("height", String(displaySize));
+    svg.setAttribute("shape-rendering", "crispEdges");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "QR code for this wallet link");
+    svg.style.width = `${displaySize}px`;
+    svg.style.height = `${displaySize}px`;
+
+    let pathData = "";
+    modules.forEach((row, y) => {
+      row.forEach((dark, x) => {
+        if (dark) pathData += `M${x} ${y}h1v1h-1z`;
+      });
+    });
+    const path = document.createElementNS(namespace, "path");
+    path.setAttribute("d", pathData);
+    path.setAttribute("fill", "#000000");
+    svg.appendChild(path);
+
+    qrCode.replaceChildren(svg);
+    desktopQr.hidden = false;
   }
 
   const prefix = `/${action}/`;
@@ -94,9 +123,12 @@
 
   if (!payload || !action || !scheme) {
     button.disabled = true;
+    if (openInstalled) openInstalled.hidden = true;
     status.textContent = "This wallet link is incomplete or invalid.";
     return;
   }
+
+  showDesktopQr();
 
   button.addEventListener("click", () => {
     // The app reads a contact payload only from `nodeId`, so the custom-scheme
