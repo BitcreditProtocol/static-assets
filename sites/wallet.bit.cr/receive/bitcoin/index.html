@@ -9,25 +9,54 @@
     <link rel="stylesheet" href="/styles.css">
     <link rel="icon" type="image/png" href="/wallet-icon.png">
     <script src="/site-config.js" defer></script>
+    <script src="/qr.js" defer></script>
     <script src="/fallback.js" defer></script>
   </head>
   <body data-action="receive" data-scheme="bcrwallet">
+    <header class="site-header">
+      <img src="/bitcredit-logo.svg" width="132" height="19" alt="Bitcredit">
+    </header>
     <main>
-      <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
-      <h1>Continue in Bitcredit Wallet</h1>
-      <p id="status">This receive link is designed to open securely in the wallet app.</p>
-      <div class="actions" aria-label="Wallet actions">
-        <button class="primary" id="open-wallet" type="button">Open wallet</button>
-        <a class="button" id="android-install" href="https://play.google.com/store/apps/details?id=org.bitcr.wallet" target="_blank" rel="noopener noreferrer">Get it on Google Play</a>
-        <a class="button" id="ios-install" href="#" target="_blank" rel="noopener noreferrer" hidden>Download for iPhone</a>
+      <div class="action">
+        <section class="card">
+          <div class="title">
+            <h1>You’ve received e-cash</h1>
+            <p id="status">Install Bitcredit eCash<br>
+              to receive your payment.</p>
+          </div>
+          <figure class="desktop-qr" id="desktop-qr" hidden>
+            <div class="qr-code" id="qr-code"></div>
+            <figcaption>Scan to open on your phone</figcaption>
+          </figure>
+          <div class="actions" aria-label="Install Bitcredit eCash">
+            <a class="store-badge app-store" id="ios-install" href="https://apps.apple.com/app/id6764422592" target="_blank" rel="noopener noreferrer">
+              <img src="/app-store-icon.svg" width="20" height="24" alt="">
+              <span class="store-badge-label">
+                <span class="store-badge-caption">Download on the</span>
+                <span class="store-badge-name">App Store</span>
+              </span>
+            </a>
+            <a class="store-badge google-play" id="android-install" href="https://play.google.com/store/apps/details?id=org.bitcr.wallet" target="_blank" rel="noopener noreferrer">
+              <img src="/google-play-icon.svg" width="21" height="24" alt="">
+              <span class="store-badge-label">
+                <span class="store-badge-caption">Get it on</span>
+                <img class="google-play-wordmark" src="/google-play-wordmark.svg" width="74" height="15" alt="Google Play">
+              </span>
+            </a>
+          </div>
+        </section>
+        <section class="after-install" aria-labelledby="after-install-title">
+          <h2 id="after-install-title">After installation:</h2>
+          <p>Open this link again to receive your e-cash in your new Bitcoin wallet.</p>
+        </section>
+        <p class="open-installed" id="open-installed">
+          <button class="link-button" id="open-wallet" type="button">Already have the app? Open it now</button>
+        </p>
+        <noscript><p class="open-installed">JavaScript is required to pass this link to the wallet app.</p></noscript>
       </div>
-      <noscript><p>JavaScript is required to pass this link to the wallet app.</p></noscript>
     </main>
     <footer class="site-footer">
-      <nav aria-label="Bitcredit links">
-        <a href="https://bit.cr/">bit.cr</a>
-        <a href="https://github.com/BitcreditProtocol">GitHub</a>
-      </nav>
+      <p>© 2026 Bitcredit Protocol.<br class="footer-break"> Released under the <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer">MIT license</a>.</p>
     </footer>
   </body>
 </html>

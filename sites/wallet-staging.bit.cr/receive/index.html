@@ -9,24 +9,39 @@
     <link rel="stylesheet" href="/styles.css">
     <link rel="icon" type="image/png" href="/wallet-icon.png">
     <script src="/site-config.js" defer></script>
+    <script src="/qr.js" defer></script>
     <script src="/fallback.js" defer></script>
   </head>
   <body data-action="receive" data-scheme="bcrwallet-staging">
+    <header class="site-header">
+      <img src="/bitcredit-logo.svg" width="132" height="19" alt="Bitcredit">
+    </header>
     <main>
-      <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
-      <p class="environment">Staging</p>
-      <h1>Continue in Bitcredit Wallet</h1>
-      <p id="status">This receive link is designed to open securely in the staging wallet app.</p>
-      <div class="actions" aria-label="Wallet actions">
-        <button class="primary" id="open-wallet" type="button">Open staging wallet</button>
+      <div class="action">
+        <section class="card">
+          <div class="title">
+            <p class="environment">Staging</p>
+            <h1>You’ve received e-cash</h1>
+            <p id="status">Install Bitcredit eCash<br>
+              to receive your payment.</p>
+          </div>
+          <figure class="desktop-qr" id="desktop-qr" hidden>
+            <div class="qr-code" id="qr-code"></div>
+            <figcaption>Scan to open on your phone</figcaption>
+          </figure>
+          <div class="actions" id="open-installed">
+            <button class="primary" id="open-wallet" type="button">Open staging wallet</button>
+          </div>
+        </section>
+        <section class="after-install" aria-labelledby="after-install-title">
+          <h2 id="after-install-title">After installation:</h2>
+          <p>Open this link again to receive your e-cash in your new Bitcoin wallet.</p>
+        </section>
+        <noscript><p class="open-installed">JavaScript is required to pass this link to the wallet app.</p></noscript>
       </div>
-      <noscript><p>JavaScript is required to pass this link to the wallet app.</p></noscript>
     </main>
     <footer class="site-footer">
-      <nav aria-label="Bitcredit links">
-        <a href="https://bit.cr/">bit.cr</a>
-        <a href="https://github.com/BitcreditProtocol">GitHub</a>
-      </nav>
+      <p>© 2026 Bitcredit Protocol.<br class="footer-break"> Released under the <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer">MIT license</a>.</p>
     </footer>
   </body>
 </html>

@@ -89,6 +89,12 @@ assert.match(qrResponse.headers.get("content-type") ?? "", /^image\/png\b/i);
 const walletIconResponse = await get("/wallet-icon.png");
 assert.match(walletIconResponse.headers.get("content-type") ?? "", /^image\/png\b/i);
 
+const logoResponse = await get("/bitcredit-logo.svg");
+assert.match(logoResponse.headers.get("content-type") ?? "", /^image\/svg\+xml\b/i);
+
+const qrScriptResponse = await get("/qr.js");
+assert.match(qrScriptResponse.headers.get("content-type") ?? "", /javascript/i);
+
 const siteConfigResponse = await get("/site-config.js");
 const siteConfigBody = await siteConfigResponse.text();
 assert.ok(siteConfigBody.includes(`customScheme: "${environment.scheme}"`));

@@ -12,25 +12,31 @@
     <script src="/landing.js" defer></script>
   </head>
   <body>
+    <header class="site-header">
+      <img src="/bitcredit-logo.svg" width="132" height="19" alt="Bitcredit">
+    </header>
     <main>
-      <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
-      <p class="environment">Staging</p>
-      <h1>Bitcredit Wallet</h1>
-      <p>The Bitcoin-native, non-custodial wallet for sending, requesting and receiving e-cash.</p>
-      <div class="desktop-qr" id="desktop-qr" hidden>
-        <img src="/qr-wallet.png" width="168" height="168" alt="QR code for wallet-staging.bit.cr">
-        <p>Scan to open wallet-staging.bit.cr on your phone</p>
-      </div>
-      <div class="actions" id="wallet-actions" aria-label="Wallet actions" hidden>
-        <a class="button primary" id="open-wallet" href="bcrwallet-staging://open" hidden>Open staging wallet</a>
-      </div>
-      <p class="privacy">Staging builds are for authorized testers.</p>
+      <section class="card">
+        <img class="wallet-icon" src="/wallet-icon.png" width="64" height="64" alt="">
+        <div class="title">
+          <p class="environment">Staging</p>
+          <h1>Bitcredit Wallet</h1>
+          <p>The Bitcoin-native, non-custodial wallet for sending, requesting and receiving e-cash.</p>
+        </div>
+        <figure class="desktop-qr" id="desktop-qr" hidden>
+          <div class="qr-code">
+            <img src="/qr-wallet.png" width="160" height="160" alt="QR code for wallet-staging.bit.cr">
+          </div>
+          <figcaption>Scan to open wallet-staging.bit.cr on your phone</figcaption>
+        </figure>
+        <div class="actions" id="wallet-actions" aria-label="Wallet actions" hidden>
+          <a class="button primary" id="open-wallet" href="bcrwallet-staging://open" hidden>Open staging wallet</a>
+        </div>
+        <p class="privacy">Staging builds are for authorized testers.</p>
+      </section>
     </main>
     <footer class="site-footer">
-      <nav aria-label="Bitcredit links">
-        <a href="https://bit.cr/">bit.cr</a>
-        <a href="https://github.com/BitcreditProtocol">GitHub</a>
-      </nav>
+      <p>© 2026 Bitcredit Protocol.<br class="footer-break"> Released under the <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer">MIT license</a>.</p>
     </footer>
   </body>
 </html>

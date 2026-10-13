@@ -7,24 +7,25 @@
   const iosInstall = document.getElementById("ios-install");
   const desktopQr = document.getElementById("desktop-qr");
   const userAgent = navigator.userAgent || "";
-  const isAndroid = /Android/i.test(userAgent);
-  const isIOS = /iPhone|iPad|iPod/i.test(userAgent) ||
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-  function configureInstallLink(link, value, defaultLabel) {
-    if (!value || value.startsWith("REPLACE_WITH_")) return false;
+  function configureInstallLink(link, value) {
+    if (!value || value.startsWith("REPLACE_WITH_")) {
+      link.hidden = true;
+      return;
+    }
 
     try {
       const url = new URL(value);
-      if (url.protocol !== "https:") return false;
+      if (url.protocol !== "https:") throw new Error("Install links must use HTTPS");
       link.href = url.toString();
-      link.textContent = url.hostname === "testflight.apple.com"
-        ? "Join the iOS beta on TestFlight"
-        : defaultLabel;
-      link.hidden = false;
-      return true;
+      if (url.hostname === "testflight.apple.com") {
+        link.querySelector(".store-badge-caption").textContent = "Join the beta on";
+        link.querySelector(".store-badge-name").textContent = "TestFlight";
+      }
     } catch {
-      return false;
+      link.hidden = true;
     }
   }
 
@@ -34,24 +35,10 @@
     openWallet.hidden = true;
   }
 
-  const hasAndroidInstall = configureInstallLink(
-    androidInstall,
-    config?.androidInstallUrl,
-    "Get it on Google Play",
-  );
-  const hasIOSInstall = configureInstallLink(
-    iosInstall,
-    config?.iosInstallUrl,
-    "Download on the App Store",
-  );
+  configureInstallLink(iosInstall, config?.iosInstallUrl);
+  configureInstallLink(androidInstall, config?.androidInstallUrl);
 
-  if (isAndroid) {
-    iosInstall.hidden = true;
-    if (hasAndroidInstall) androidInstall.classList.add("recommended");
-  } else if (isIOS) {
-    androidInstall.hidden = true;
-    if (hasIOSInstall) iosInstall.classList.add("recommended");
-  } else {
+  if (!isMobile) {
     openWallet.hidden = true;
     desktopQr.hidden = false;
   }
