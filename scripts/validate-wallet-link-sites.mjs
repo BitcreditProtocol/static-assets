@@ -68,7 +68,7 @@ function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks
       clickHandler = handler;
     },
   };
-  const status = { textContent: "" };
+  const status = { dataset: {}, textContent: "" };
   const openInstalled = { hidden: false };
   const desktopQr = { hidden: true };
   const qrCode = {
@@ -150,6 +150,23 @@ function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks
   };
 }
 
+function detectLanguage(script, languages) {
+  const context = {
+    document: {
+      documentElement: {},
+      getElementById: () => null,
+      querySelectorAll: () => [],
+    },
+    navigator: { languages, language: languages?.[0] },
+  };
+  vm.runInNewContext(script, context);
+  return context.bitcreditI18n.language;
+}
+
+function translationKeys(html) {
+  return [...html.matchAll(/data-i18n(?:-label)?="([^"]+)"/g)].map((match) => match[1]);
+}
+
 for (const site of sites) {
   const siteConfigSource = await read(site, "site-config.js");
   const siteConfigContext = {};
@@ -202,6 +219,30 @@ for (const site of sites) {
   const fallbackScript = await read(site, "fallback.js");
   assert.doesNotMatch(fallbackScript, /console\.|fetch\(|sendBeacon|XMLHttpRequest/);
 
+  const i18nScript = await read(site, "i18n.js");
+  assert.doesNotMatch(i18nScript, /innerHTML|insertAdjacentHTML|document\.write|console\.|fetch\(/);
+  assert.equal(detectLanguage(i18nScript, ["es-MX", "en"]), "es");
+  assert.equal(detectLanguage(i18nScript, ["de-DE", "es"]), "es");
+  assert.equal(detectLanguage(i18nScript, ["en-GB", "es"]), "en");
+  assert.equal(detectLanguage(i18nScript, ["fr-FR"]), "en", "an unsupported language must fall back to English");
+  assert.equal(detectLanguage(i18nScript, []), "en", "no language preference must fall back to English");
+  const i18nContext = {
+    document: { documentElement: {}, getElementById: () => null, querySelectorAll: () => [] },
+    navigator: { languages: ["en"] },
+  };
+  vm.runInNewContext(i18nScript, i18nContext);
+  const translations = i18nContext.bitcreditI18n.strings;
+  assert.deepEqual(Object.keys(translations), ["en", "es"]);
+  assert.deepEqual(
+    Object.keys(translations.es).sort(),
+    Object.keys(translations.en).sort(),
+    `${site.host}: English and Spanish must translate the same keys`,
+  );
+  // Strings are rendered as text with "\n" as the only markup.
+  for (const text of Object.values(translations).flatMap(Object.values)) {
+    assert.doesNotMatch(text, /[<>]/);
+  }
+
   const qrScript = await read(site, "qr.js");
   assert.doesNotMatch(qrScript, /console\.|fetch\(|sendBeacon|XMLHttpRequest|location/);
   const qrContext = { TextEncoder };
@@ -232,6 +273,13 @@ for (const site of sites) {
   for (const footerLink of removedFooterLinks) assert.ok(!rootHtml.includes(footerLink));
 
   const notFoundHtml = await read(site, "404.html");
+  for (const [name, html] of [["index.html", rootHtml], ["404.html", notFoundHtml]]) {
+    assert.ok(html.includes('src="/i18n.js"'), `${site.host}: ${name} must load i18n.js`);
+    assert.ok(html.includes('id="language-switch"'), `${site.host}: ${name} must offer the language switch`);
+    for (const key of translationKeys(html)) {
+      assert.ok(Object.hasOwn(translations.en, key), `${site.host}: ${name} uses unknown translation key ${key}`);
+    }
+  }
   assert.ok(notFoundHtml.includes('src="/bitcredit-logo.svg"'));
   for (const footerLink of footerLinks) assert.ok(notFoundHtml.includes(footerLink));
   for (const footerLink of removedFooterLinks) assert.ok(!notFoundHtml.includes(footerLink));
@@ -257,6 +305,15 @@ for (const site of sites) {
     assert.ok(html.includes(`data-scheme="${site.scheme}"`));
     assert.ok(html.includes('src="/bitcredit-logo.svg"'));
     assert.ok(html.includes('src="/qr.js"'));
+    assert.ok(html.includes('id="language-switch"'));
+    assert.ok(html.indexOf('src="/i18n.js"') !== -1);
+    assert.ok(html.indexOf('src="/i18n.js"') < html.indexOf('src="/fallback.js"'));
+    for (const key of translationKeys(html)) {
+      assert.ok(Object.hasOwn(translations.en, key), `${site.host}: ${action} uses unknown translation key ${key}`);
+    }
+    for (const key of [`${action}.heading`, `${action}.subtitle`, "link.invalid", "after.heading"]) {
+      assert.ok(Object.hasOwn(translations.en, key), `${site.host}: missing translation key ${key}`);
+    }
     if (site.directory === "wallet.bit.cr") {
       assert.ok(html.includes(site.androidInstallUrl));
       assert.ok(html.includes(site.iosInstallUrl));
@@ -385,6 +442,7 @@ const allFiles = await Promise.all(
     read(site, "site-config.js"),
     read(site, "fallback.js"),
     read(site, "qr.js"),
+    read(site, "i18n.js"),
     read(site, "pay/index.html"),
     read(site, "receive/index.html"),
     read(site, "contact/index.html"),
@@ -394,5 +452,11 @@ const allFiles = await Promise.all(
   ]),
 );
 assert.doesNotMatch(allFiles.join("\n"), /wallet\.example\.com/);
+
+assert.equal(
+  await read(sites[0], "i18n.js"),
+  await read(sites[1], "i18n.js"),
+  "i18n.js must be identical on every wallet site",
+);
 
 console.log(`Validated ${sites.length} wallet link sites${strict ? " in strict mode" : ""}.`);

@@ -73,6 +73,12 @@ On desktop the page instead shows a QR code of the action link exactly as it was
 
 Staging builds are tester-distributed, so the staging pages show an “Open staging wallet” button on phones in place of the store badges.
 
+### Languages
+
+The pages are available in the wallet app's languages, English and Spanish. The reader of an action link is its recipient, so `i18n.js` follows the browser's language preferences (`navigator.languages`, first supported match), not the sender's; anything else, or no preference at all, falls back to English. The language is deliberately not part of the link: it would carry the sender's choice, and a second query parameter stops WhatsApp and iMessage from linkifying the URL. A footer switch (“English · Español”) covers a browser set to the wrong language; the choice is not stored.
+
+The HTML carries the English text, which is what a visitor without JavaScript sees; elements marked `data-i18n` (text) or `data-i18n-label` (`aria-label`) are filled from the dictionary in `i18n.js`. Strings are inserted as text, with `\n` as the only line break, never as HTML. Both sites share one `i18n.js`, and the validator checks that both languages define the same keys and that every key used in a page exists. To add a language, add its dictionary and a button to the footer switch on every page.
+
 Both isolated wallet deployments include a copy of the wallet icon from `static/wallet/assets/icon.png`, and the Bitcredit logo, background and store badge artwork exported from the [Wallet design file](https://www.figma.com/design/O3To42rBvE2Hs483nAvlJn/Wallet?node-id=6306-8542). The copies are required because a Cloudflare Pages project rooted under `sites/` cannot read files from the separate `static/` deployment root.
 
 The iOS install link points at the production App Store listing (Apple ID `6764422592`). If a TestFlight invitation URL is ever configured instead, the pages label it as a TestFlight beta rather than as an App Store release. Apple Smart App Banners require the production App Store's numeric Apple ID and cannot target a TestFlight invitation.

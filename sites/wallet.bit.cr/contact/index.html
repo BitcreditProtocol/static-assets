@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <title>Add contact in Bitcredit Wallet</title>
+    <title data-i18n="title.contact">Add contact in Bitcredit Wallet</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="icon" type="image/png" href="/wallet-icon.png">
     <script src="/site-config.js" defer></script>
+    <script src="/i18n.js" defer></script>
     <script src="/qr.js" defer></script>
     <script src="/fallback.js" defer></script>
   </head>
@@ -20,42 +21,47 @@
       <div class="action">
         <section class="card">
           <div class="title">
-            <h1>New wallet address</h1>
-            <p id="status">Install Bitcredit eCash.</p>
+            <h1 data-i18n="contact.heading">New wallet address</h1>
+            <p id="status" data-i18n="contact.subtitle">Install Bitcredit eCash.</p>
           </div>
           <figure class="desktop-qr" id="desktop-qr" hidden>
-            <div class="qr-code" id="qr-code"></div>
-            <figcaption>Scan to open on your phone</figcaption>
+            <div class="qr-code" id="qr-code" role="img" aria-label="QR code for this wallet link" data-i18n-label="qr.label"></div>
+            <figcaption data-i18n="qr.caption">Scan to open on your phone</figcaption>
           </figure>
-          <div class="actions" aria-label="Install Bitcredit eCash">
+          <div class="actions" aria-label="Install Bitcredit eCash" data-i18n-label="install.label">
             <a class="store-badge app-store" id="ios-install" href="https://apps.apple.com/app/id6764422592" target="_blank" rel="noopener noreferrer">
               <img src="/app-store-icon.svg" width="20" height="24" alt="">
               <span class="store-badge-label">
-                <span class="store-badge-caption">Download on the</span>
+                <span class="store-badge-caption" data-i18n="install.appStore">Download on the</span>
                 <span class="store-badge-name">App Store</span>
               </span>
             </a>
             <a class="store-badge google-play" id="android-install" href="https://play.google.com/store/apps/details?id=org.bitcr.wallet" target="_blank" rel="noopener noreferrer">
               <img src="/google-play-icon.svg" width="21" height="24" alt="">
               <span class="store-badge-label">
-                <span class="store-badge-caption">Get it on</span>
+                <span class="store-badge-caption" data-i18n="install.googlePlay">Get it on</span>
                 <img class="google-play-wordmark" src="/google-play-wordmark.svg" width="74" height="15" alt="Google Play">
               </span>
             </a>
           </div>
         </section>
         <section class="after-install" aria-labelledby="after-install-title">
-          <h2 id="after-install-title">After installation:</h2>
-          <p>Open this link again to add the address as a payment contact in your wallet.</p>
+          <h2 id="after-install-title" data-i18n="after.heading">After installation:</h2>
+          <p data-i18n="contact.after">Open this link again to add the address as a payment contact in your wallet.</p>
         </section>
         <p class="open-installed" id="open-installed">
-          <button class="link-button" id="open-wallet" type="button">Already have the app? Open it now</button>
+          <button class="link-button" id="open-wallet" type="button" data-i18n="open.installed">Already have the app? Open it now</button>
         </p>
         <noscript><p class="open-installed">JavaScript is required to pass this link to the wallet app.</p></noscript>
       </div>
     </main>
     <footer class="site-footer">
-      <p>© 2026 Bitcredit Protocol.<br class="footer-break"> Released under the <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer">MIT license</a>.</p>
+      <p><span data-i18n="footer.copyright">© 2026 Bitcredit Protocol.</span><br class="footer-break"> <span data-i18n="footer.released">Released under the</span> <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer" data-i18n="footer.license">MIT license</a>.</p>
+      <nav class="language-switch" id="language-switch" aria-label="Language" data-i18n-label="language.label" hidden>
+        <button class="link-button" type="button" lang="en" data-language="en">English</button>
+        <span aria-hidden="true">·</span>
+        <button class="link-button" type="button" lang="es" data-language="es">Español</button>
+      </nav>
     </footer>
   </body>
 </html>

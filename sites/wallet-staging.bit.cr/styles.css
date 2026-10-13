@@ -360,8 +360,10 @@ button:disabled {
 
 .site-footer {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   min-height: 80px;
   padding: 10px 20px;
 }
@@ -385,6 +387,26 @@ button:disabled {
 }
 
 .site-footer a:focus-visible {
+  outline: 2px solid var(--text-300);
+  outline-offset: 3px;
+}
+
+.language-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-200);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.language-switch .link-button[aria-pressed="true"] {
+  color: var(--text-300);
+  cursor: default;
+  text-decoration: none;
+}
+
+.language-switch .link-button:focus-visible {
   outline: 2px solid var(--text-300);
   outline-offset: 3px;
 }

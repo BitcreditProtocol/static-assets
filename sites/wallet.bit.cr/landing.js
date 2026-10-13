@@ -21,7 +21,10 @@
       if (url.protocol !== "https:") throw new Error("Install links must use HTTPS");
       link.href = url.toString();
       if (url.hostname === "testflight.apple.com") {
-        link.querySelector(".store-badge-caption").textContent = "Join the beta on";
+        const caption = link.querySelector(".store-badge-caption");
+        caption.dataset.i18n = "install.testFlight";
+        caption.textContent = "Join the beta on";
+        globalThis.bitcreditI18n?.apply(caption);
         link.querySelector(".store-badge-name").textContent = "TestFlight";
       }
     } catch {

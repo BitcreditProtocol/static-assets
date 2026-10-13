@@ -27,6 +27,14 @@
   }
   let network = url.searchParams.get("network");
 
+  // Switches an element to another translation key, so a later language
+  // change keeps translating it; English stands in when i18n.js is missing.
+  function setTranslatedText(element, key, english) {
+    element.dataset.i18n = key;
+    element.textContent = english;
+    globalThis.bitcreditI18n?.apply(element);
+  }
+
   function configureInstallLink(link, value) {
     if (!link) return;
     if (!value || value.startsWith("REPLACE_WITH_")) {
@@ -41,7 +49,7 @@
       if (installUrl.hostname === "testflight.apple.com") {
         const caption = link.querySelector(".store-badge-caption");
         const name = link.querySelector(".store-badge-name");
-        if (caption) caption.textContent = "Join the beta on";
+        if (caption) setTranslatedText(caption, "install.testFlight", "Join the beta on");
         if (name) name.textContent = "TestFlight";
       }
     } catch {
@@ -72,8 +80,8 @@
     svg.setAttribute("width", String(displaySize));
     svg.setAttribute("height", String(displaySize));
     svg.setAttribute("shape-rendering", "crispEdges");
-    svg.setAttribute("role", "img");
-    svg.setAttribute("aria-label", "QR code for this wallet link");
+    // The container carries the translated label.
+    svg.setAttribute("aria-hidden", "true");
     svg.style.width = `${displaySize}px`;
     svg.style.height = `${displaySize}px`;
 
@@ -124,7 +132,7 @@
   if (!payload || !action || !scheme) {
     button.disabled = true;
     if (openInstalled) openInstalled.hidden = true;
-    status.textContent = "This wallet link is incomplete or invalid.";
+    setTranslatedText(status, "link.invalid", "This wallet link is incomplete or invalid.");
     return;
   }
 
