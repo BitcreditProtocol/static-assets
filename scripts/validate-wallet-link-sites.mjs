@@ -70,6 +70,7 @@ function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks
   };
   const status = { dataset: {}, textContent: "" };
   const openInstalled = { hidden: false };
+  const openHint = { hidden: false };
   const desktopQr = { hidden: true };
   const qrCode = {
     children: [],
@@ -80,6 +81,7 @@ function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks
   const elements = new Map([
     ["open-wallet", button],
     ["open-installed", openInstalled],
+    ["open-hint", openHint],
     ["status", status],
     ["desktop-qr", desktopQr],
     ["qr-code", qrCode],
@@ -142,6 +144,7 @@ function runFallback(script, { url, action, scheme, siteConfig, withInstallLinks
     button,
     desktopQr,
     installLinks,
+    openHint,
     openInstalled,
     qrCode,
     qrText,
@@ -173,6 +176,7 @@ for (const site of sites) {
   vm.runInNewContext(siteConfigSource, siteConfigContext);
   const siteConfig = siteConfigContext.bitcreditWalletSite;
   assert.equal(siteConfig.customScheme, site.scheme);
+  assert.equal(siteConfig.androidPackage, site.packageName);
   assert.equal(siteConfig.androidInstallUrl, site.androidInstallUrl);
   assert.equal(siteConfig.iosInstallUrl, site.iosInstallUrl);
 
@@ -335,6 +339,7 @@ for (const site of sites) {
     assert.equal(pathResult.desktopQr.hidden, false);
     assert.equal(pathResult.qrCode.children.length, 1);
     assert.equal(pathResult.openInstalled.hidden, true);
+    assert.equal(pathResult.openHint.hidden, true);
 
     for (const userAgent of ["Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)", "Mozilla/5.0 (Linux; Android 15)"]) {
       const mobileResult = runFallback(fallbackScript, {
@@ -348,7 +353,24 @@ for (const site of sites) {
       assert.equal(mobileResult.qrText, null);
       assert.equal(mobileResult.desktopQr.hidden, true);
       assert.equal(mobileResult.openInstalled.hidden, false);
+      assert.equal(mobileResult.openHint.hidden, false);
       for (const link of mobileResult.installLinks) assert.equal(link.hidden, false);
+
+      // Android gets an `intent://` link aimed at the wallet package, so a
+      // browser that ignores bare custom schemes still opens the app; iOS
+      // keeps the custom scheme.
+      const target = action === "contact"
+        ? `contact/?nodeId=${encodeURIComponent(pathPayload)}`
+        : `${action}/${encodeURIComponent(pathPayload)}`;
+      const fallbackExtra = site.androidInstallUrl
+        ? `;S.browser_fallback_url=${encodeURIComponent(site.androidInstallUrl)}`
+        : "";
+      assert.equal(
+        mobileResult.assignedLocation,
+        /Android/.test(userAgent)
+          ? `intent://${target}#Intent;scheme=${site.scheme};package=${site.packageName}${fallbackExtra};end`
+          : `${site.scheme}://${target}`,
+      );
     }
     assert.equal(
       pathResult.assignedLocation,
@@ -382,6 +404,7 @@ for (const site of sites) {
       withInstallLinks: site.directory === "wallet.bit.cr",
     });
     assert.equal(invalidResult.button.disabled, true);
+    assert.equal(invalidResult.openHint.hidden, true);
     assert.equal(invalidResult.assignedLocation, null);
     assert.equal(invalidResult.qrText, null);
     assert.equal(invalidResult.desktopQr.hidden, true);
