@@ -6,6 +6,7 @@
   const scheme = config?.customScheme || document.body.dataset.scheme;
   const button = document.getElementById("open-wallet");
   const openInstalled = document.getElementById("open-installed");
+  const openHint = document.getElementById("open-hint");
   const status = document.getElementById("status");
   const androidInstall = document.getElementById("android-install");
   const iosInstall = document.getElementById("ios-install");
@@ -61,10 +62,17 @@
   configureInstallLink(androidInstall, config?.androidInstallUrl);
 
   const userAgent = navigator.userAgent || "";
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(userAgent) ||
+  const isAndroid = /Android/i.test(userAgent);
+  const isMobile = isAndroid || /iPhone|iPad|iPod/i.test(userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-  if (!isMobile && openInstalled) openInstalled.hidden = true;
+  // The hint points at the "Open it now" link, so it goes wherever that does.
+  function hideOpenInstalled() {
+    if (openInstalled) openInstalled.hidden = true;
+    if (openHint) openHint.hidden = true;
+  }
+
+  if (!isMobile) hideOpenInstalled();
 
   function showDesktopQr() {
     const qr = globalThis.bitcreditQr;
@@ -131,7 +139,7 @@
 
   if (!payload || !action || !scheme) {
     button.disabled = true;
-    if (openInstalled) openInstalled.hidden = true;
+    hideOpenInstalled();
     setTranslatedText(status, "link.invalid", "This wallet link is incomplete or invalid.");
     return;
   }
@@ -149,6 +157,24 @@
     const query = parameters.length > 0 ? `?${parameters.join("&")}` : "";
     const path = action === "contact" ? "" : encodeURIComponent(payload);
 
-    window.location.assign(`${scheme}://${action}/${path}${query}`);
+    window.location.assign(walletLink(`${action}/${path}${query}`));
   });
+
+  // Android browsers hand an `intent://` link straight to the named package,
+  // and open the install page when it is missing. A bare custom-scheme link is
+  // silently ignored by some of them, and this button is the only way into the
+  // app when the system has not verified the App Link claim, as happens on
+  // devices without Google Play services such as GrapheneOS. The app receives
+  // the same `<scheme>://...` URI either way.
+  function walletLink(target) {
+    const androidPackage = config?.androidPackage;
+    if (!isAndroid || !androidPackage) return `${scheme}://${target}`;
+
+    const extras = [`scheme=${scheme}`, `package=${androidPackage}`];
+    const installUrl = config?.androidInstallUrl;
+    if (installUrl && !installUrl.startsWith("REPLACE_WITH_")) {
+      extras.push(`S.browser_fallback_url=${encodeURIComponent(installUrl)}`);
+    }
+    return `intent://${target}#Intent;${extras.join(";")};end`;
+  }
 })();
