@@ -19,4 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: node scripts/validate-wallet-link-sites.mjs --strict
+      # Not --strict yet: the eBills Android fingerprints and App Store ID are still
+      # placeholders (sites/README.md). Switch to --strict once they are filled in.
+      - run: node scripts/validate-ebill-link-sites.mjs
       - run: node scripts/validate-wallet-min-version.mjs

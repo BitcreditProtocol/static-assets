@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <title data-i18n="title.pay.staging">Pay staging bill in eBills</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" type="image/png" href="/ebills-icon.png">
+    <script src="/site-config.js" defer></script>
+    <script src="/i18n.js" defer></script>
+    <script src="/qr.js" defer></script>
+    <script src="/fallback.js" defer></script>
+  </head>
+  <body data-action="pay" data-scheme="bcrebill-staging">
+    <header class="site-header">
+      <img src="/bitcredit-logo.svg" width="132" height="19" alt="Bitcredit">
+    </header>
+    <main>
+      <div class="action">
+        <section class="card">
+          <div class="title">
+            <p class="environment" data-i18n="staging.label">Staging</p>
+            <h1 data-i18n="pay.heading">Pay bill in eBills</h1>
+            <p id="status" data-i18n="pay.subtitle">Install Bitcredit eBills<br>
+              to open the bill’s payment.</p>
+          </div>
+          <figure class="desktop-qr" id="desktop-qr" hidden>
+            <div class="qr-code" id="qr-code" role="img" aria-label="QR code for this eBills link" data-i18n-label="qr.label"></div>
+            <figcaption data-i18n="qr.caption">Scan to open on your phone</figcaption>
+          </figure>
+          <div class="actions" id="open-installed">
+            <button class="primary" id="open-app" type="button" data-i18n="open.staging">Open staging eBills</button>
+          </div>
+        </section>
+        <section class="after-install" aria-labelledby="after-install-title">
+          <h2 id="after-install-title" data-i18n="after.heading">After installation:</h2>
+          <ol class="steps">
+            <li><span data-i18n="pay.step.identity">Set up or restore the identity that is a party to this bill.</span></li>
+            <li><span data-i18n="pay.step.open">Open this link again to pay the bill.</span></li>
+          </ol>
+          <p data-i18n="pay.parties">The payment only opens in eBills for a party to the bill.</p>
+        </section>
+        <noscript><p class="open-installed">JavaScript is required to pass this link to the eBills app.</p></noscript>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <p><span data-i18n="footer.copyright">© 2026 Bitcredit Protocol.</span><br class="footer-break"> <span data-i18n="footer.released">Released under the</span> <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer" data-i18n="footer.license">MIT license</a>.</p>
+      <nav class="language-switch" id="language-switch" aria-label="Language" data-i18n-label="language.label" hidden>
+        <button class="link-button" type="button" lang="en" data-language="en">English</button>
+        <span aria-hidden="true">·</span>
+        <button class="link-button" type="button" lang="es" data-language="es">Español</button>
+      </nav>
+    </footer>
+  </body>
+</html>
