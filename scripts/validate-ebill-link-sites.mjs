@@ -7,7 +7,7 @@ const repositoryRoot = path.resolve(import.meta.dirname, "..");
 const strict = process.argv.includes("--strict");
 const fingerprintPattern = /^(?:[0-9A-F]{2}:){31}[0-9A-F]{2}$/;
 const placeholderPattern = /REPLACE_WITH_[A-Z0-9_]+/g;
-const footerLink = "https://opensource.org/license/mit/";
+const footerLink = 'href="https://opensource.org/license/mit/"';
 // The eBills app generates exactly these links (`contactLink` and
 // `billPaymentLink` in the app's `lib/utils/ebill_links.dart`) and reads the
 // custom-scheme handoff under the same parameter names.
