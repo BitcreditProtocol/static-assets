@@ -4,6 +4,8 @@ Each immediate child directory is an independent website deployment root:
 
 ```text
 sites/
+├── ebill-staging.bit.cr/
+├── ebill.bit.cr/
 ├── wallet-staging.bit.cr/
 └── wallet.bit.cr/
 ```
@@ -16,6 +18,8 @@ No framework or build command is required. Configure each Git-integrated Pages p
 | --- | --- | --- | --- |
 | Wallet staging | `sites/wallet-staging.bit.cr` | `.` | `wallet-staging.bit.cr` |
 | Wallet production | `sites/wallet.bit.cr` | `.` | `wallet.bit.cr` |
+| eBills staging | `sites/ebill-staging.bit.cr` | `.` | `ebill-staging.bit.cr` |
+| eBills production | `sites/ebill.bit.cr` | `.` | `ebill.bit.cr` |
 
 ## Wallet Universal Links and Android App Links
 
@@ -157,3 +161,59 @@ https://app-site-association.cdn-apple.com/a/v1/wallet.bit.cr
 Preview deployment hosts are useful for browser-fallback checks, but the mobile apps intentionally do not claim `pages.dev` preview domains.
 
 Roll out staging first. Verify signed staging builds on physical Android and iOS devices, then replace and deploy the production association values, validate both production endpoints, and only then publish the mobile release. Once this repository is deployed, remove the duplicate `.well-known` and fallback files from the wallet repository so this remains the single source of truth.
+
+## eBills Universal Links and Android App Links
+
+The eBills app (Bitcredit e-bills, a separate Flutter app from the wallet) has its own pair of link sites. They reuse the wallet pages' layout, scripts, security headers and CSP, but have their own URL contract, so they are validated by their own scripts.
+
+| Environment | Pages root | HTTPS host | iOS application identifier | Android package | Custom-scheme fallback |
+| --- | --- | --- | --- | --- | --- |
+| Staging | `sites/ebill-staging.bit.cr` | `ebill-staging.bit.cr` | `85W65YFC4J.org.bitcr.ebills.staging` | `org.bitcr.ebills.staging` | `bcrebill-staging://` |
+| Production | `sites/ebill.bit.cr` | `ebill.bit.cr` | `85W65YFC4J.org.bitcr.ebills` | `org.bitcr.ebills` | `bcrebill://` |
+
+Development has no website association and uses only `bcrebill-dev://`.
+
+### URL contract
+
+These are the links the eBills app generates (`contactLink` and `billPaymentLink` in `lib/utils/ebill_links.dart`):
+
+```text
+https://<host>/contact/?data=<payload>
+https://<host>/pay/?bill=<bill id>
+```
+
+- `/contact/` shares an identity, company or incognito contact. The payload is unpadded url-safe base64 JSON and carries personal data (name, address and so on), so `/contact/*` gets the same `no-store`, `no-referrer`, noindex and URL-stripping treatment as the wallet's payload routes.
+- `/pay/` opens a bill's payment. Only a party to that bill can open it in the app; anyone else holding the link gets nothing from it.
+
+There are no network path segments and no `/receive/`. The AASA files claim `/contact/*` and `/pay/*` only; the root stays a browser landing page.
+
+The custom-scheme handoff keeps each parameter's name: “Already have the app? Open it now” (and the staging “Open staging eBills” button) emits `<scheme>://contact/?data=<payload>` or `<scheme>://pay/?bill=<id>`, as an `intent://` URL naming the eBills package on Android, exactly as on the wallet pages. The root “Open eBills” button uses `<scheme>://open`. Any other shape on an action page (no payload, the other action's parameter, a payload in the path) is shown as an invalid link and nothing is handed to the app.
+
+`fallback.js`, `i18n.js` and `qr.js` are identical on both eBills sites, enforced by the validator. The pages are in English and Spanish and follow the same language rules as the wallet pages. The icon is a copy of the app's `assets/branding/app-icon.png` from the eBill repository (`ebills-icon.png`). The desktop root QR codes (`qr-ebills.png`) were rendered locally with the sites' own `qr.js` and open the site root.
+
+### Open placeholders
+
+The eBills sites carry `REPLACE_WITH_...` placeholders for values nobody has yet, because neither app has been distributed:
+
+| Placeholder | File(s) | What it needs |
+| --- | --- | --- |
+| `REPLACE_WITH_EBILLS_STAGING_ANDROID_SIGNING_SHA256` | `ebill-staging.bit.cr/.well-known/assetlinks.json` | The SHA-256 fingerprint of every certificate that signs a staging build that should open App Links (Play app signing, the Play internal app sharing key if PR previews should open links, and any CI key used for directly distributed APKs). |
+| `REPLACE_WITH_EBILLS_PROD_ANDROID_SIGNING_SHA256` | `ebill.bit.cr/.well-known/assetlinks.json` | The Play app signing certificate fingerprint for `org.bitcr.ebills`, plus any other key whose APKs should open App Links. |
+| `REPLACE_WITH_EBILLS_APP_STORE_URL` | `ebill.bit.cr/site-config.js`, the `ios-install` badge in `ebill.bit.cr/index.html`, `contact/index.html` and `pay/index.html` | The production App Store URL, `https://apps.apple.com/app/id<Apple ID>`. In the HTML, also drop the badge's `hidden` attribute. |
+
+Replace the fingerprints in the association files and in the expected lists of both `scripts/validate-ebill-link-sites.mjs` and `scripts/validate-ebill-link-deployment.mjs`; replace the App Store URL in the same two scripts. Until then the badge for a placeholder listing is hidden by `fallback.js` and `landing.js` (and by the `hidden` attribute without JavaScript), and the production root carries no `apple-itunes-app` Smart App Banner. Once the Apple ID is known, add the banner to `ebill.bit.cr/index.html` only, as on `wallet.bit.cr`. As for the wallet, confirm the signed apps' `application-identifier` entitlements match the AASA `appIDs` before deploying.
+
+Staging is tester-distributed, so its pages show an “Open staging eBills” button on phones instead of store badges, like the wallet's staging pages.
+
+### Validation
+
+```sh
+node scripts/validate-ebill-link-sites.mjs            # structural; warns about the placeholders
+node scripts/validate-ebill-link-sites.mjs --strict   # fails until every placeholder is replaced
+node scripts/validate-ebill-link-deployment.mjs ebill-staging.bit.cr
+node scripts/validate-ebill-link-deployment.mjs ebill.bit.cr
+```
+
+CI runs the structural check. Switch it to `--strict` in `.github/workflows/validate.yml` once the placeholders are gone. The deployment check fails while `assetlinks.json` carries a placeholder.
+
+On Android, verify with `adb shell pm verify-app-links --re-verify org.bitcr.ebills.staging` (or `org.bitcr.ebills`) and `adb shell pm get-app-links <package>`. The Apple CDN copies are at `https://app-site-association.cdn-apple.com/a/v1/ebill-staging.bit.cr` and `.../ebill.bit.cr`. The Cloudflare security settings and rollout order above apply unchanged.

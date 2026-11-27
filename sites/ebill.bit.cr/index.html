@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <title data-i18n="title.root">Bitcredit eBills</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" type="image/png" href="/ebills-icon.png">
+    <script src="/site-config.js" defer></script>
+    <script src="/i18n.js" defer></script>
+    <script src="/landing.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <img src="/bitcredit-logo.svg" width="132" height="19" alt="Bitcredit">
+    </header>
+    <main>
+      <section class="card">
+        <img class="app-icon" src="/ebills-icon.png" width="64" height="64" alt="">
+        <div class="title">
+          <h1 data-i18n="title.root">Bitcredit eBills</h1>
+          <p data-i18n="root.description">The Bitcredit app for issuing, accepting and paying e-bills.</p>
+        </div>
+        <figure class="desktop-qr" id="desktop-qr" hidden>
+          <div class="qr-code" role="img" aria-label="QR code for ebill.bit.cr" data-i18n-label="root.qr.label">
+            <img src="/qr-ebills.png" width="160" height="160" alt="">
+          </div>
+          <figcaption data-i18n="qr.caption">Scan to open on your phone</figcaption>
+        </figure>
+        <div class="actions" aria-label="eBills actions" data-i18n-label="root.actions">
+          <a class="button primary" id="open-app" href="bcrebill://open" data-i18n="open.app">Open eBills</a>
+          <a class="store-badge app-store" id="ios-install" href="REPLACE_WITH_EBILLS_APP_STORE_URL" target="_blank" rel="noopener noreferrer" hidden>
+            <img src="/app-store-icon.svg" width="20" height="24" alt="">
+            <span class="store-badge-label">
+              <span class="store-badge-caption" data-i18n="install.appStore">Download on the</span>
+              <span class="store-badge-name">App Store</span>
+            </span>
+          </a>
+          <a class="store-badge google-play" id="android-install" href="https://play.google.com/store/apps/details?id=org.bitcr.ebills" target="_blank" rel="noopener noreferrer">
+            <img src="/google-play-icon.svg" width="21" height="24" alt="">
+            <span class="store-badge-label">
+              <span class="store-badge-caption" data-i18n="install.googlePlay">Get it on</span>
+              <img class="google-play-wordmark" src="/google-play-wordmark.svg" width="74" height="15" alt="Google Play">
+            </span>
+          </a>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <p><span data-i18n="footer.copyright">© 2026 Bitcredit Protocol.</span><br class="footer-break"> <span data-i18n="footer.released">Released under the</span> <a href="https://opensource.org/license/mit/" target="_blank" rel="noopener noreferrer" data-i18n="footer.license">MIT license</a>.</p>
+      <nav class="language-switch" id="language-switch" aria-label="Language" data-i18n-label="language.label" hidden>
+        <button class="link-button" type="button" lang="en" data-language="en">English</button>
+        <span aria-hidden="true">·</span>
+        <button class="link-button" type="button" lang="es" data-language="es">Español</button>
+      </nav>
+    </footer>
+  </body>
+</html>
